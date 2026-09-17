@@ -29,13 +29,14 @@ python scripts/generate.py --scale stress  # ~100k / ~2M rows — larger-scale t
 ```
 
 Output lands in `output/` (gitignored, regenerate any time):
-- `output/rcl_poc.duckdb` — all 7 tables (4 fact + 3 dimension), queryable with any DuckDB client
+- `output/rcl_poc.duckdb` — all 9 tables (6 fact + 3 dimension), queryable with any DuckDB client
 - `output/parquet/*.parquet` and `output/csv/*.csv` — same tables as flat files
 
 Then, optionally:
 
 ```bash
 python scripts/build_data_dictionary.py   # -> docs/data_dictionary.md
+python scripts/build_reference_docs.py    # -> docs/reference_codes.md, docs/reference_order_processing.md
 python scripts/run_sample_questions.py    # -> docs/sample_qa_output.md
 ```
 
@@ -52,27 +53,32 @@ probabilities behind cuts, allocation, NPI rate, etc. Change a number, rerun
 config/config.yaml          single source of truth for volumes/dates/probabilities
 src/rcl_datagen/
   config.py                 loads config.yaml
-  calendar.py                daily + fiscal-week calendar dimension
+  calendar.py                daily + fiscal-week calendar dimension (+ build_forward_weeks for horizons)
   namers.py                  fictitious brand/retailer/site name generation (all in one place, auditable)
-  risk.py                     shared per-material-per-week "supply risk" latent value
+  risk.py                     shared per-material-per-week "supply risk" latent value; risk_tier + vreport_status
+  reference_codes.py           shared code/description/weight lookups (block/rejection/cut/order-type/etc.)
+  scenarios.py                 deterministic "planted pattern" pass — see config.yaml's `scenarios` section
   dimensions/
     products.py               GBU -> Franchise -> Category -> Brand -> Material
     customers.py               Segment -> Key Customer -> Sold-to -> Ship-to
     locations.py                Plant / distribution-center reference
   facts/
     shipments.py                rcl_agent_shipments equivalent (live open orders)
-    historical.py                rcl_agent_cuts_tact_attr_dtl equivalent (ETD history)
-    allocation.py                 rcl_agent_osas equivalent (daily allocation)
-    vulnerability.py               rcl_agent_vreport equivalent (SKU risk)
+    historical.py                rcl_agent_cuts_tact_attr_dtl equivalent (ETD history, fill rate, cuts, rejections)
+    allocation.py                 rcl_agent_osas equivalent (daily allocation, by customer group)
+    vulnerability.py               rcl_agent_vreport equivalent (SKU risk + forward horizon)
+    atp_snapshot.py                 INVENTED — one consistent ATP value per (material, dc)
+    inbound_schedule.py              INVENTED — forward inbound-receipt schedule
   writer.py                    Parquet/CSV + DuckDB output
-  validate.py                  referential-integrity & business-rule checks
+  validate.py                  referential-integrity, business-rule & planted-pattern checks
   metadata.py                  column descriptions -> data dictionary source
 scripts/
   generate.py                 main CLI — run this
   build_data_dictionary.py    -> docs/data_dictionary.md
+  build_reference_docs.py     -> docs/reference_codes.md, docs/reference_order_processing.md
   run_sample_questions.py     -> docs/sample_qa_output.md
 queries/order_intelligence.py  named NL question -> SQL pairs (the Q&A seed set)
-docs/                        generated output (dictionary + sample Q&A) — safe to commit, describes fictitious data only
+docs/                        generated output (dictionary + reference docs + sample Q&A) — safe to commit, describes fictitious data only
 ```
 
 ## Design decisions & assumptions (confirm with the client SME when possible)

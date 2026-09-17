@@ -15,6 +15,12 @@ here; see docs/data_dictionary and flag them with the client SME.
 `JNJ_ITEM_NO` in the real table is renamed to `CLIENT_ITEM_NO` (see
 dimensions/products.py docstring) since that name itself encodes the client's
 identity, unlike every other observed column name.
+
+The per-DC ATP/QI-hold/blocked/in-transit columns below are independently
+randomized PER ORDER LINE (kept that way for width-fidelity to the real
+table's shape) — the same SKU/DC can show a different "ATP" on different
+rows. For one consistent (material, dc) ATP value, use `atp_snapshot`
+(facts/atp_snapshot.py) instead.
 """
 from __future__ import annotations
 
@@ -24,9 +30,14 @@ import numpy as np
 import pandas as pd
 
 from rcl_datagen.dimensions.locations import distribution_centers
+from rcl_datagen.reference_codes import (
+    BILLING_BLOCK_CODES, BILLING_BLOCK_WEIGHTS,
+    CREDIT_BLOCK_CODES, CREDIT_BLOCK_WEIGHTS,
+    DELIVERY_BLOCK_CODES, DELIVERY_BLOCK_WEIGHTS,
+    REJECTION_CODES, REJECTION_WEIGHTS,
+    gated_code_draw,
+)
 
-_REJECTION = [(None, None), ("ZA", "Rejected - Customer Request"), ("ZB", "Rejected - Credit Block")]
-_REJECTION_WEIGHTS = [0.85, 0.10, 0.05]
 _HEADER_DESCRIPTIONS = ["Standard", "Manual Long Lead", "Auto Release", "Exclusion"]
 _HEADER_DESC_WEIGHTS = [0.55, 0.25, 0.15, 0.05]
 
@@ -79,9 +90,16 @@ def build_shipments(
     cut_qty = np.round(order_quantity * cut_fraction / case_pack) * case_pack
     confirmed_qty = np.clip(np.where(is_cut, cut_qty, order_quantity), 0, order_quantity)
 
-    rej_idx = np.where(is_cut, rng.choice([0, 1, 2], size=n, p=_REJECTION_WEIGHTS), 0)
-    rj_code = [_REJECTION[i][0] for i in rej_idx]
-    rj_desc = [_REJECTION[i][1] for i in rej_idx]
+    rej_idx = np.where(is_cut, rng.choice(len(REJECTION_CODES), size=n, p=REJECTION_WEIGHTS), 0)
+    rj_code = [REJECTION_CODES[i][0] for i in rej_idx]
+    rj_desc = [REJECTION_CODES[i][1] for i in rej_idx]
+
+    delv_block_cd, delv_block_desc = gated_code_draw(
+        rng, n, cfg.business_rules.delivery_block_rate, DELIVERY_BLOCK_CODES, DELIVERY_BLOCK_WEIGHTS)
+    bill_block_cd, bill_block_desc = gated_code_draw(
+        rng, n, cfg.business_rules.billing_block_rate, BILLING_BLOCK_CODES, BILLING_BLOCK_WEIGHTS)
+    cred_block_cd, cred_block_desc = gated_code_draw(
+        rng, n, cfg.business_rules.credit_block_rate, CREDIT_BLOCK_CODES, CREDIT_BLOCK_WEIGHTS)
 
     unit_unconfirmed = order_quantity - confirmed_qty
     ufr_pct = np.where(order_quantity > 0, 100.0 * confirmed_qty / order_quantity, 0.0)
@@ -115,6 +133,12 @@ def build_shipments(
         "PO_number": (800000 + rng.integers(0, 199999, size=n)).astype(str),
         "Delivery_Header_Description": rng.choice(_HEADER_DESCRIPTIONS, size=n, p=_HEADER_DESC_WEIGHTS),
         "Line_Block_Description": np.where(rng.random(n) < 0.04, "Exclusion", None),
+        "DELIVERY_BLOCK_CD": delv_block_cd,
+        "DELIVERY_BLOCK_DESC": delv_block_desc,
+        "BILLING_BLOCK_CD": bill_block_cd,
+        "BILLING_BLOCK_DESC": bill_block_desc,
+        "CREDIT_BLOCK_CD": cred_block_cd,
+        "CREDIT_BLOCK_DESC": cred_block_desc,
         "Rejection_Description": rj_desc,
         "Forward_Scheduling_Flag": rng.random(n) < 0.03,
         "MATL_SHRT_DESC": lines["material_desc"].to_numpy(),

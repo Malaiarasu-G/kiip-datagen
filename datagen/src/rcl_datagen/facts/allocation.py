@@ -10,14 +10,25 @@ from a small placeholder lookup (see docs/data_dictionary). The probability
 a parent is on allocation is driven by the shared material-week risk_index
 (see risk.py), aggregated up from material to parent, so it lines up with
 the vulnerability and shipment-cut stories for the same product family.
+
+CUSTOMER_GROUP / ALLOCATED_QTY / ORDERED_QTY / REMAINING_QTY / PCT_CONSUMED
+are INVENTED — the real snapshot never showed customer or quantity fields on
+this table (it's parent-product x date x period only). Added because
+allocation-consumption questions need them; grain is customer *segment*, not
+ship-to (nothing needs per-ship-to allocation, and it would multiply row
+count for no benefit), and deliberately NOT further split by DC (the real
+table never showed DC either, and no question needs allocation sliced by
+DC — see datagen/docs planning notes).
 """
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-_KC_CODES = [(None, None), ("SS", "Short Supply"), ("NC", "New Capacity Ramp"), ("QH", "Quality Hold")]
-_KC_WEIGHTS = [0.5, 0.3, 0.2]
+from rcl_datagen.reference_codes import KC_CODES, KC_WEIGHTS
+
+_KC_CODES = KC_CODES
+_KC_WEIGHTS = KC_WEIGHTS
 
 
 def _parent_level(products: pd.DataFrame) -> pd.DataFrame:
@@ -39,6 +50,7 @@ def build_allocation(
     rng: np.random.Generator,
     cfg,
     products: pd.DataFrame,
+    customers: pd.DataFrame,
     risk: pd.DataFrame,
 ) -> pd.DataFrame:
     parents = _parent_level(products)
@@ -72,6 +84,7 @@ def build_allocation(
     grid["PSE"] = None
     # "%-m" (no leading zero) isn't portable to Windows strftime, so build MONTHYEAR by hand.
     grid["MONTHYEAR"] = grid["CALENDAR_DT"].dt.month.astype(str) + "/" + grid["CALENDAR_DT"].dt.year.astype(str)
+    grid["_RISK_IDX"] = risk_idx  # carried through the segment cross-join below, then dropped
 
     grid = grid.rename(columns={
         "material_parent_cd": "PARENT_CODE",
@@ -83,10 +96,36 @@ def build_allocation(
         "brand": "SC_BRAND",
     })
 
+    # --- customer-group consumption (INVENTED — see module docstring) ---------
+    # Broadcast across segments AFTER on-allocation/KC are decided at the
+    # parent x date x period grain: being "on allocation" is a parent-level
+    # fact, not a per-segment one — drawing it independently per segment would
+    # let one segment show "On Allocation" while another doesn't for the same
+    # parent/day/period, which would break the cross-table "why" story.
+    segments = pd.DataFrame({"CUSTOMER_GROUP": customers["cust_seg_cd"].unique()})
+    grid = grid.merge(segments, how="cross")
+    n2 = len(grid)
+    risk_idx2 = grid["_RISK_IDX"].to_numpy()
+
+    ordered_qty = np.round(rng.gamma(shape=2.5, scale=40.0, size=n2))
+    # headroom shrinks as risk rises: most (low-risk) rows sit comfortably under
+    # 100% consumed; only the higher-risk tail approaches or exceeds it.
+    tightness = np.clip(2.2 - risk_idx2 * cfg.business_rules.allocation_tightness_risk_weight, 0.4, 2.2)
+    allocated_qty = np.clip(np.round(ordered_qty * tightness * rng.uniform(0.85, 1.05, size=n2)), 1, None)
+    pct_consumed = np.clip(np.round(100.0 * ordered_qty / allocated_qty, 1), 0, 250)  # >100 allowed (over-consumed)
+    remaining_qty = np.clip(np.round(allocated_qty - ordered_qty), 0, None)
+
+    grid["ALLOCATED_QTY"] = allocated_qty
+    grid["ORDERED_QTY"] = ordered_qty
+    grid["REMAINING_QTY"] = remaining_qty
+    grid["PCT_CONSUMED"] = pct_consumed
+    grid = grid.drop(columns="_RISK_IDX")
+
     ordered_cols = [
         "SAP_MOD", "PARENT_CODE", "ALLOCATION_LEVEL", "SAP_DESC", "PARENT_DESC",
         "EACH_UPC", "CASE_UPC", "SC_GBU", "SC_FRANCHISE", "SC_BRAND",
         "POM_4_BOX", "PSE", "ALLOC_STATUS", "KC", "KC_DESC",
         "MONTHYEAR", "CALENDAR_DT", "PERIOD",
+        "CUSTOMER_GROUP", "ALLOCATED_QTY", "ORDERED_QTY", "REMAINING_QTY", "PCT_CONSUMED",
     ]
     return grid[ordered_cols]

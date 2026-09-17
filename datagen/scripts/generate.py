@@ -26,10 +26,13 @@ from rcl_datagen.dimensions.customers import build_customers  # noqa: E402
 from rcl_datagen.dimensions.locations import build_locations  # noqa: E402
 from rcl_datagen.dimensions.products import build_products  # noqa: E402
 from rcl_datagen.facts.allocation import build_allocation  # noqa: E402
+from rcl_datagen.facts.atp_snapshot import build_atp_snapshot  # noqa: E402
 from rcl_datagen.facts.historical import build_historical  # noqa: E402
+from rcl_datagen.facts.inbound_schedule import build_inbound_schedule  # noqa: E402
 from rcl_datagen.facts.shipments import build_shipments  # noqa: E402
 from rcl_datagen.facts.vulnerability import build_vulnerability  # noqa: E402
 from rcl_datagen.risk import build_material_week_risk  # noqa: E402
+from rcl_datagen.scenarios import apply_scenarios  # noqa: E402
 from rcl_datagen.validate import validate  # noqa: E402
 from rcl_datagen.writer import write_tables  # noqa: E402
 
@@ -64,8 +67,8 @@ def main() -> None:
     vuln_weeks = weekly_calendar_full.tail(cfg.dates.vulnerability_weeks).reset_index(drop=True)
 
     # One risk series spanning the full history_start..as_of_date range, shared by
-    # historical/vulnerability/shipments (via current_risk) so all four tables tell
-    # a consistent "why" story about the same material in the same week.
+    # historical/vulnerability/shipments/allocation (via current_risk) so all
+    # tables tell a consistent "why" story about the same material in the same week.
     risk = build_material_week_risk(rng, products["material"], weekly_calendar_full["week_start_date"])
     current_risk = (
         risk.sort_values("week_start_date").groupby("material", as_index=False).last()[["material", "risk_index"]]
@@ -75,14 +78,22 @@ def main() -> None:
     shipments = build_shipments(rng, cfg, products, customers, locations, current_risk)
     print(f"  shipments: {len(shipments)} rows, {len(shipments.columns)} columns")
 
-    historical = build_historical(rng, cfg, products, customers, locations, risk)
-    print(f"  historical: {len(historical)} rows")
-
-    allocation = build_allocation(rng, cfg, products, risk)
+    # allocation builds before historical: historical's cut-reason attribution
+    # joins against allocation's realized ALLOC_STATUS (see historical.py).
+    allocation = build_allocation(rng, cfg, products, customers, risk)
     print(f"  allocation: {len(allocation)} rows")
 
-    vulnerability = build_vulnerability(rng, products, vuln_weeks, risk)
+    historical = build_historical(rng, cfg, products, customers, locations, risk, allocation)
+    print(f"  historical: {len(historical)} rows")
+
+    vulnerability = build_vulnerability(rng, cfg, products, vuln_weeks, risk)
     print(f"  vulnerability: {len(vulnerability)} rows")
+
+    atp_snapshot = build_atp_snapshot(rng, cfg, products, locations, current_risk)
+    print(f"  atp_snapshot: {len(atp_snapshot)} rows")
+
+    inbound_schedule = build_inbound_schedule(rng, cfg, products, locations, current_risk)
+    print(f"  inbound_schedule: {len(inbound_schedule)} rows")
 
     tables = {
         "dim_product": products,
@@ -92,12 +103,20 @@ def main() -> None:
         "historical": historical,
         "allocation": allocation,
         "vulnerability": vulnerability,
+        "atp_snapshot": atp_snapshot,
+        "inbound_schedule": inbound_schedule,
     }
+
+    scenario_keys = None
+    if cfg.scenarios.enabled:
+        scenario_keys = apply_scenarios(rng, cfg, tables)
+        applied = [k for k, v in scenario_keys.items() if v is not None]
+        print(f"  planted patterns applied: {', '.join(applied) if applied else '(none — too little data at this scale)'}")
 
     write_tables(tables, cfg, BASE_DIR)
     print(f"  wrote {len(tables)} tables -> {BASE_DIR / cfg.output.duckdb_path}")
 
-    report = validate(tables)
+    report = validate(tables, scenario_keys=scenario_keys)
     report.print_summary()
 
     print(f"\nDone in {time.time() - t0:.1f}s")

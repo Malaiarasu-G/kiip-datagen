@@ -13,6 +13,16 @@ rather than being independently random per row — that is what makes "similar
 order items" produce a coherent estimated-delivery pattern instead of noise.
 The same material-week risk_index used by allocation/vulnerability nudges
 lead time and lateness here too, for the same cross-table-consistency reason.
+
+MATERIAL / ORDR_QTY / DELV_QTY / CUT_QTY / cut+rejection reasons /
+CANCELLED_FL / ORDR_TYPE / ORDR_VAL / DELV_VAL / CUST_REQ_DELV_DT are
+INVENTED — the real snapshot never showed any quantity, value, or reason
+field on this table (only dates, IDs and descriptions), even though its name
+("cuts_tact_attr_dtl") implies cuts belong here. Added because fill-rate/cut/
+rejection/cancellation questions need them. The primary cut reason is biased
+toward "Allocation" when the material's parent was realized on-allocation
+that week (see the allocation-linkage below) so the cut genuinely traces
+back to a cause instead of being a coincidental correlation.
 """
 from __future__ import annotations
 
@@ -22,8 +32,20 @@ import numpy as np
 import pandas as pd
 
 from rcl_datagen.dimensions.locations import distribution_centers
+from rcl_datagen.reference_codes import (
+    CANCELLATION_REASON_CODES, CANCELLATION_REASON_WEIGHTS,
+    CUT_REASON_CODES, CUT_REASON_WEIGHTS,
+    DELIVERY_BLOCK_CODES, DELIVERY_BLOCK_WEIGHTS,
+    ORDER_TYPE_CODES, ORDER_TYPE_WEIGHTS,
+    REJECTION_CODES,
+    gated_code_draw,
+)
 
-_DELV_BLOCK_CODES = [None, None, None, "01", "02"]  # mostly unblocked
+# Non-None rejection codes only, re-weighted — historical gates "does a
+# rejection apply at all" via its own cfg-driven rate rather than reusing
+# shipments.py's baked-in None-heavy weights.
+_REJECTION_CODES_ONLY = [c for c in REJECTION_CODES if c[0] is not None]
+_REJECTION_WEIGHTS_ONLY = [0.6, 0.25, 0.15]
 
 
 def _add_days(base: np.ndarray, days: np.ndarray) -> np.ndarray:
@@ -37,6 +59,7 @@ def build_historical(
     customers: pd.DataFrame,
     locations: pd.DataFrame,
     risk: pd.DataFrame,  # material x week_start_date x risk_index
+    allocation: pd.DataFrame,
 ) -> pd.DataFrame:
     n = cfg.volumes.historical_rows
     start, end = cfg.dates.history_start, cfg.dates.history_end
@@ -83,6 +106,92 @@ def build_historical(
     mad_week = pd.to_datetime(order_created).isocalendar()
     pgi_week = pd.to_datetime(plan_gi_date).isocalendar()
 
+    # --- allocation linkage: was this line's material's parent flagged --------
+    # "on allocation" during the week its planned GI date falls in? Makes
+    # cut_reason "Allocation" a real, joinable answer (see module docstring).
+    alloc_week = (
+        allocation.assign(
+            week_start_date=pd.to_datetime(allocation["CALENDAR_DT"])
+            .dt.to_period("W-SUN").dt.start_time.dt.date
+        )
+        .groupby(["PARENT_CODE", "week_start_date"])["ALLOC_STATUS"]
+        .apply(lambda s: bool((s == "On Allocation").any()))
+        .reset_index(name="parent_on_allocation")
+    )
+    pgi_week_of = pd.to_datetime(plan_gi_date).to_period("W-SUN").start_time.date
+    parent_on_allocation = (
+        pd.DataFrame({"PARENT_CODE": lines["material_parent_cd"].to_numpy(), "week_start_date": pgi_week_of})
+        .merge(alloc_week, on=["PARENT_CODE", "week_start_date"], how="left")["parent_on_allocation"]
+        .infer_objects(copy=False)
+        .fillna(False)
+        .astype(bool)
+        .to_numpy()
+    )
+
+    # --- order type, cancellation, rejection -----------------------------------
+    order_qty = rng.integers(4, 200, size=n).astype(float)  # cases
+    type_idx = rng.choice(len(ORDER_TYPE_CODES), size=n, p=ORDER_TYPE_WEIGHTS)
+    ordr_type_cd = np.array([ORDER_TYPE_CODES[i][0] for i in type_idx])
+    ordr_type_desc = np.array([ORDER_TYPE_CODES[i][1] for i in type_idx])
+
+    cancelled = rng.random(n) < cfg.business_rules.historical_cancellation_rate
+    cancelled_fl = np.where(cancelled, "YES", "NO")
+    cancel_rsn_idx = rng.choice(len(CANCELLATION_REASON_CODES), size=n, p=CANCELLATION_REASON_WEIGHTS)
+    cancelled_rsn_cd = np.where(cancelled, [CANCELLATION_REASON_CODES[i][0] for i in cancel_rsn_idx], None)
+    cancelled_rsn_desc = np.where(cancelled, [CANCELLATION_REASON_CODES[i][1] for i in cancel_rsn_idx], None)
+
+    rejected = ~cancelled & (rng.random(n) < cfg.business_rules.historical_rejection_rate)
+    rej_prim_idx = rng.choice(len(_REJECTION_CODES_ONLY), size=n, p=_REJECTION_WEIGHTS_ONLY)
+    rjctn_rsn_prim_cd = np.where(rejected, [_REJECTION_CODES_ONLY[i][0] for i in rej_prim_idx], None)
+    rjctn_rsn_prim_desc = np.where(rejected, [_REJECTION_CODES_ONLY[i][1] for i in rej_prim_idx], None)
+    has_seco_rej = rejected & (rng.random(n) < 0.25)
+    rej_seco_idx = rng.choice(len(_REJECTION_CODES_ONLY), size=n, p=_REJECTION_WEIGHTS_ONLY)
+    rjctn_rsn_seco_cd = np.where(has_seco_rej, [_REJECTION_CODES_ONLY[i][0] for i in rej_seco_idx], None)
+    rjctn_rsn_seco_desc = np.where(has_seco_rej, [_REJECTION_CODES_ONLY[i][1] for i in rej_seco_idx], None)
+
+    # --- cuts, biased toward "Allocation" when the parent was on-allocation ----
+    cut_probability = np.clip(cfg.business_rules.historical_cut_probability * (0.5 + material_risk), 0.0, 0.9)
+    is_cut = ~cancelled & ~rejected & (rng.random(n) < cut_probability)
+
+    cats = len(CUT_REASON_CODES)
+    alloc_cat_idx = next(i for i, c in enumerate(CUT_REASON_CODES) if c[1] == "Allocation")
+    base_w = np.array(CUT_REASON_WEIGHTS, dtype=float)
+    other_idx = [i for i in range(cats) if i != alloc_cat_idx]
+    boosted_w = base_w.copy()
+    boosted_w[alloc_cat_idx] = cfg.business_rules.allocation_cut_bias
+    boosted_w[other_idx] = (
+        (1.0 - cfg.business_rules.allocation_cut_bias) * (base_w[other_idx] / base_w[other_idx].sum())
+    )
+
+    row_w = np.where(parent_on_allocation[:, None], boosted_w[None, :], base_w[None, :])
+    cum_w = np.cumsum(row_w, axis=1)
+    u = rng.random(n) * cum_w[:, -1]
+    cut_rsn_idx = np.clip((u[:, None] > cum_w).sum(axis=1), 0, cats - 1)
+    cut_rsn_prim_cd = np.where(is_cut, [CUT_REASON_CODES[i][0] for i in cut_rsn_idx], None)
+    cut_rsn_prim_desc = np.where(is_cut, [CUT_REASON_CODES[i][1] for i in cut_rsn_idx], None)
+
+    has_seco_cut = is_cut & (rng.random(n) < 0.25)
+    cut_seco_idx = rng.choice(cats, size=n, p=CUT_REASON_WEIGHTS)
+    cut_rsn_seco_cd = np.where(has_seco_cut, [CUT_REASON_CODES[i][0] for i in cut_seco_idx], None)
+    cut_rsn_seco_desc = np.where(has_seco_cut, [CUT_REASON_CODES[i][1] for i in cut_seco_idx], None)
+
+    # --- quantities/values — DELV_QTY defined first so CUT_QTY == ORDR_QTY - DELV_QTY holds exactly ---
+    cancel_or_reject = cancelled | rejected
+    cut_fraction = rng.uniform(0.05, 0.85, size=n)
+    delv_qty = np.where(
+        cancel_or_reject, 0.0,
+        np.where(is_cut, np.round(order_qty * (1 - cut_fraction)), order_qty),
+    )
+    cut_qty = order_qty - delv_qty
+    list_price = lines["list_price"].to_numpy()
+    ordr_val = order_qty * list_price
+    delv_val = delv_qty * list_price
+
+    cust_req_delv_dt = _add_days(plan_gi_date, rng.integers(-3, 5, size=n))
+
+    delv_hdr_blk_cd, delv_hdr_blk_desc = gated_code_draw(
+        rng, n, cfg.business_rules.delivery_block_rate, DELIVERY_BLOCK_CODES, DELIVERY_BLOCK_WEIGHTS)
+
     df = pd.DataFrame({
         "LINE_ITEM_CAT_CD": rng.choice(["TAN", "ZTAN", "REN"], size=n, p=[0.8, 0.15, 0.05]),
         "LATE_FL_MAD_IND": late_flag,
@@ -95,7 +204,8 @@ def build_historical(
         "SHIP_TO_CUST_NM": cust["ship_to_nm"].to_numpy(),
         "SHIP_TO_CUST_NUM": cust["ship_to_num"].to_numpy(),
         "SOLD_TO_CUST_NM": cust["sold_to_nm"].to_numpy(),
-        "DELV_HDR_BLK_CD": rng.choice(_DELV_BLOCK_CODES, size=n),
+        "DELV_HDR_BLK_CD": delv_hdr_blk_cd,
+        "DELV_HDR_BLK_DESC": delv_hdr_blk_desc,
         "MAD_FISC_YR_MO_NUM": [f"{d.year}_{d.month:02d}" for d in order_created],
         "MAD_FISC_YR_NBR": mad_week["year"].to_numpy(),
         "MAD_FISC_YR_WK_NUM": [f"{y}_wk{w:02d}" for y, w in zip(mad_week["year"], mad_week["week"])],
@@ -120,5 +230,25 @@ def build_historical(
         "REGN_CAT_DESC": lines["category"].to_numpy(),
         "REGN_FRAN_DESC": lines["franchise"].to_numpy(),
         "REGN_GLOBL_BU_DESC": lines["gbu"].to_numpy(),
+        "MATERIAL": lines["material"].to_numpy(),
+        "ORDR_QTY": order_qty,
+        "DELV_QTY": delv_qty,
+        "CUT_QTY": cut_qty,
+        "ORDR_VAL": ordr_val,
+        "DELV_VAL": delv_val,
+        "ORDR_TYPE_CD": ordr_type_cd,
+        "ORDR_TYPE_DESC": ordr_type_desc,
+        "CANCELLED_FL": cancelled_fl,
+        "CANCELLED_RSN_CD": cancelled_rsn_cd,
+        "CANCELLED_RSN_DESC": cancelled_rsn_desc,
+        "CUT_RSN_PRIM_CD": cut_rsn_prim_cd,
+        "CUT_RSN_PRIM_DESC": cut_rsn_prim_desc,
+        "CUT_RSN_SECO_CD": cut_rsn_seco_cd,
+        "CUT_RSN_SECO_DESC": cut_rsn_seco_desc,
+        "RJCTN_RSN_PRIM_CD": rjctn_rsn_prim_cd,
+        "RJCTN_RSN_PRIM_DESC": rjctn_rsn_prim_desc,
+        "RJCTN_RSN_SECO_CD": rjctn_rsn_seco_cd,
+        "RJCTN_RSN_SECO_DESC": rjctn_rsn_seco_desc,
+        "CUST_REQ_DELV_DT": pd.to_datetime(cust_req_delv_dt),
     })
     return df

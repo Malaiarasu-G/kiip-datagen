@@ -8,24 +8,41 @@ Daily (AM/PM) inventory allocation snapshot. Stand-in for rcl_lab.rcl_agent_osas
 
 | Column | Type | Example | Description |
 |---|---|---|---|
-| SAP_MOD | object | 5246347 | SAP module/document reference for this allocation record. |
+| SAP_MOD | object | 5213514 | SAP module/document reference for this allocation record. |
 | PARENT_CODE | object | 900001 | Allocation-parent product code — joins to dim_product.material_parent_cd. |
 | ALLOCATION_LEVEL | object | ZREDPAR | Allocation grouping level code (e.g. ZREDPAR = parent-level). |
 | SAP_DESC | object |  | SAP description field (null in every sampled real row). |
-| PARENT_DESC | object | CURAFRESH CLEANSERS PARENT | Parent product description. |
-| EACH_UPC | object | 270524223175 | UPC at the each level. |
-| CASE_UPC | object | 21692935480192 | UPC at the case level. |
+| PARENT_DESC | object | BOTALUX MULTIVITAMINS PARENT | Parent product description. |
+| EACH_UPC | object | 393242822324 | UPC at the each level. |
+| CASE_UPC | object | 43341373543137 | UPC at the case level. |
 | SC_GBU | object | Skin & Personal Care | Global Business Unit. |
-| SC_FRANCHISE | object | Sun & Outdoor | Franchise. |
-| SC_BRAND | object | Curafresh | Brand. |
-| POM_4_BOX | object | Box 4 | POM 4-box classification (value was truncated in the real snapshot; reproduced as a generic label here). |
+| SC_FRANCHISE | object | Eye & Vision Care | Franchise. |
+| SC_BRAND | object | Botalux | Brand. |
+| POM_4_BOX | object | Box 1 | POM 4-box classification (value was truncated in the real snapshot; reproduced as a generic label here). |
 | PSE | object |  | Code seen in the real snapshot; business meaning not confirmed (always null in the sample). |
 | ALLOC_STATUS | object | On Allocation | 'On Allocation' if the parent is supply-constrained this period, else null. INVENTED domain — real values never appeared in the sample. |
-| KC | object | SS | Allocation reason code. INVENTED domain — see docs note. |
-| KC_DESC | object | Short Supply | Text for the KC code. INVENTED domain. |
+| KC | object | NC | Allocation reason code. INVENTED domain — see docs note. |
+| KC_DESC | object | New Capacity Ramp | Text for the KC code. INVENTED domain. |
 | MONTHYEAR | object | 6/2026 | Month/year of CALENDAR_DT, e.g. '9/2026'. |
-| CALENDAR_DT | datetime64[ns] | 2026-06-19 00:00:00 | Calendar date of this allocation snapshot. |
+| CALENDAR_DT | datetime64[ns] | 2026-06-20 00:00:00 | Calendar date of this allocation snapshot. |
 | PERIOD | object | AM | AM or PM — allocation appears to be evaluated twice daily. |
+| CUSTOMER_GROUP | object | Ecom | Customer segment (dim_customer.cust_seg_cd). INVENTED — the real snapshot had no customer dimension on this table at all; grain is deliberately segment-level, not per ship-to. |
+| ALLOCATED_QTY | float64 | 50.0 | Quantity allocated to this parent/date/period/customer-group, in cases. INVENTED. |
+| ORDERED_QTY | float64 | 31.0 | Quantity ordered against the allocation. INVENTED. |
+| REMAINING_QTY | float64 | 19.0 | ALLOCATED_QTY - ORDERED_QTY, floored at 0. INVENTED. |
+| PCT_CONSUMED | float64 | 62.0 | 100 x ORDERED_QTY / ALLOCATED_QTY. Can exceed 100 (over-consumed). INVENTED. |
+
+## `atp_snapshot`
+
+Available-to-promise by material/DC, as of the current date. INVENTED — not a mirror of any real source table; see facts/atp_snapshot.py.
+
+| Column | Type | Example | Description |
+|---|---|---|---|
+| as_of_date | object | 2026-09-17 | Date this ATP snapshot was generated. |
+| material | object | 100001 | Material (SKU) code — joins to dim_product.material. |
+| dc | object | US78 | Distribution center code — joins to dim_location.plnt_cd. |
+| atp_eaches | float64 | 287.0 | Available-to-promise inventory, in eaches. One consistent value per (material, dc) — contrast with shipments' per-order-line ATP columns. |
+| atp_cases | float64 | 7.9722 | atp_eaches / dim_product.case_pack_size. |
 
 ## `dim_customer`
 
@@ -63,20 +80,20 @@ Product/material hierarchy reference (GBU -> Franchise -> Category -> Brand -> M
 | material | object | 100001 | Material (SKU) code. Primary key. |
 | client_item_no | object | 100001 | Client's internal item number (assumed identical to material — see products.py). |
 | material_parent_cd | object | 900001 | Parent material code, groups variants (e.g. sizes/scents) of the same item. |
-| material_desc | object | CURAFRESH CLEANSERS VARIANT 1 | Material description. |
-| material_parent_desc | object | CURAFRESH CLEANSERS PARENT | Parent material description. |
+| material_desc | object | BOTALUX MULTIVITAMINS VARIANT 1 | Material description. |
+| material_parent_desc | object | BOTALUX MULTIVITAMINS PARENT | Parent material description. |
 | gbu | object | Skin & Personal Care | Global Business Unit. |
-| franchise | object | Sun & Outdoor | Franchise. |
-| category | object | Cleansers | Category. |
-| brand | object | Curafresh | Brand (fictitious — see namers.py). |
-| each_upc | object | 270524223175 | UPC at the each level. |
-| case_upc | object | 21692935480192 | UPC at the case level. |
-| case_pack_size | int64 | 12 | Number of eaches per case — used to convert EA <-> CS everywhere. |
-| list_price | float64 | 17.37 | List price per each. |
+| franchise | object | Eye & Vision Care | Franchise. |
+| category | object | Multivitamins | Category. |
+| brand | object | Botalux | Brand (fictitious — see namers.py). |
+| each_upc | object | 393242822324 | UPC at the each level. |
+| case_upc | object | 43341373543137 | UPC at the case level. |
+| case_pack_size | int64 | 36 | Number of eaches per case — used to convert EA <-> CS everywhere. |
+| list_price | float64 | 9.4 | List price per each. |
 | npi_ind | bool | False | True if this is a new product introduction. |
 | dstn_chn_sts_cd | object | 31 | Distribution channel status code. |
 | dstn_chn_sts_desc | object | Active Saleable | Distribution channel status description. |
-| mfg_plnt_cd | object | CA49 | Manufacturing plant code — joins to dim_location.plnt_cd. |
+| mfg_plnt_cd | object | MX83 | Manufacturing plant code — joins to dim_location.plnt_cd. |
 
 ## `historical`
 
@@ -84,42 +101,74 @@ Historical order/delivery detail used for ETD lead-time modeling. Stand-in for r
 
 | Column | Type | Example | Description |
 |---|---|---|---|
-| LINE_ITEM_CAT_CD | object | TAN | SAP line item category code. |
+| LINE_ITEM_CAT_CD | object | ZTAN | SAP line item category code. |
 | LATE_FL_MAD_IND | object | YES | YES/NO — whether the line shipped later than its planned goods-issue date. |
-| CUST_PO_NUM | object | 5022655 | Customer purchase-order number. |
+| CUST_PO_NUM | object | 7767307 | Customer purchase-order number. |
 | GEO_CLUS_CUST_CHNL_CD | object | Unknown | Geographic cluster / customer channel code. |
-| CUST_SEG_CD | object | Exports & All Others | Customer segment (e.g. Mass/Club, Drug & Specialty, Ecom, FC&D, Exports & All Others, Grocery). |
-| KEY_CUST_NM | object | Harbor Foods 3 | Key (banner-level) customer name. |
-| KEY_CUST_NUM | object | 0048000419 | Key (banner-level) customer number. |
-| DELV_DOC_NUM | object | 848647173 | Delivery document number. |
-| SHIP_TO_CUST_NM | object | Harbor Foods 3 DC #3 | Ship-to location name. |
-| SHIP_TO_CUST_NUM | object | 40734723 | Ship-to location number. |
-| SOLD_TO_CUST_NM | object | Harbor Foods 3 | Sold-to customer name. |
-| DELV_HDR_BLK_CD | object | 01 | Delivery header block code, if the delivery was blocked. |
-| MAD_FISC_YR_MO_NUM | object | 2024_11 | Fiscal year_month of the material-availability date, e.g. '2023_11'. |
-| MAD_FISC_YR_NBR | uint32 | 2024 | Fiscal year of the material-availability date. |
-| MAD_FISC_YR_WK_NUM | object | 2024_wk48 | Fiscal year_week of the material-availability date, e.g. '2023_wk47'. |
-| PGI_FISC_YR_MO_NUM | object | 2024_12 | Fiscal year_month of the planned post-goods-issue date. |
-| PGI_FISC_YR_NBR | uint32 | 2024 | Fiscal year of the planned post-goods-issue date. |
-| PGI_FISC_YR_WK_NUM | object | 2024_wk48 | Fiscal year_week of the planned post-goods-issue date. |
-| FST_ACTL_SHIP_DT | datetime64[ns] | 2024-12-02 00:00:00 | First actual ship date. Null if the line was still open (no actual ship yet) as of generation time. |
-| ORDR_MATL_ALLOC_DT | datetime64[ns] | 2024-11-30 00:00:00 | Date the order/material was allocated (used here as the order-creation date). |
-| FST_DELV_CRT_DT | datetime64[ns] | 2024-12-01 00:00:00 | First delivery-created date. |
+| CUST_SEG_CD | object | Drug & Specialty | Customer segment (e.g. Mass/Club, Drug & Specialty, Ecom, FC&D, Exports & All Others, Grocery). |
+| KEY_CUST_NM | object | Cedar Market | Key (banner-level) customer name. |
+| KEY_CUST_NUM | object | 0048000051 | Key (banner-level) customer number. |
+| DELV_DOC_NUM | object | 879021140 | Delivery document number. |
+| SHIP_TO_CUST_NM | object | Cedar Market DC #3 | Ship-to location name. |
+| SHIP_TO_CUST_NUM | object | 40057048 | Ship-to location number. |
+| SOLD_TO_CUST_NM | object | Cedar Market | Sold-to customer name. |
+| DELV_HDR_BLK_CD | object | 02 | Delivery header block code, if the delivery was blocked. |
+| DELV_HDR_BLK_DESC | object | Delivery Block - Customer Request | Text for DELV_HDR_BLK_CD. |
+| MAD_FISC_YR_MO_NUM | object | 2025_03 | Fiscal year_month of the material-availability date, e.g. '2023_11'. |
+| MAD_FISC_YR_NBR | uint32 | 2025 | Fiscal year of the material-availability date. |
+| MAD_FISC_YR_WK_NUM | object | 2025_wk10 | Fiscal year_week of the material-availability date, e.g. '2023_wk47'. |
+| PGI_FISC_YR_MO_NUM | object | 2025_03 | Fiscal year_month of the planned post-goods-issue date. |
+| PGI_FISC_YR_NBR | uint32 | 2025 | Fiscal year of the planned post-goods-issue date. |
+| PGI_FISC_YR_WK_NUM | object | 2025_wk11 | Fiscal year_week of the planned post-goods-issue date. |
+| FST_ACTL_SHIP_DT | datetime64[ns] | 2025-03-17 00:00:00 | First actual ship date. Null if the line was still open (no actual ship yet) as of generation time. |
+| ORDR_MATL_ALLOC_DT | datetime64[ns] | 2025-03-08 00:00:00 | Date the order/material was allocated (used here as the order-creation date). |
+| FST_DELV_CRT_DT | datetime64[ns] | 2025-03-13 00:00:00 | First delivery-created date. |
 | DATA_PRVDR_CLS_NM | object | : | Data-provider classification. Real sample value was literally ':' — carried over verbatim; meaning unconfirmed. |
 | TRD_CSTM_MNG_CD | object | N | Trade customer management code. |
 | DATA_PRVDR_BRK_OUT_VAL | object | Base | Data-provider breakout value (always 'Base' in the sample). |
 | DSTN_CHN_STS_CD | object | 31-Active Saleable | Distribution channel status, combined code-description string (e.g. '31-Active Saleable'). |
-| FST_PLAN_GI_DT | datetime64[ns] | 2024-12-01 00:00:00 | First planned goods-issue date — the ETD baseline this table exists to support. |
-| MATL_DESC | object | NECTISORA COUGH & COLD VARIANT 1 | Material description. |
-| GEO_CTRY_NM | object | United States | Country of the fulfilling plant/DC. |
+| FST_PLAN_GI_DT | datetime64[ns] | 2025-03-14 00:00:00 | First planned goods-issue date — the ETD baseline this table exists to support. |
+| MATL_DESC | object | GLOWELL 2 MULTIVITAMINS VARIANT 3 | Material description. |
+| GEO_CTRY_NM | object | Canada | Country of the fulfilling plant/DC. |
 | POM_SEG_DESC | object | NA | POM segment description (always 'NA' in the sample). |
-| MFG_SITE_NM | object | Meridian Supply Chain - Norwood | Manufacturing site name for this material. |
-| PLNT_CD | object | US78 | Fulfilling plant/DC code — joins to dim_location.plnt_cd. |
-| PLNT_NM | object | Cascade Distribution - Norwood | Fulfilling plant/DC name. |
-| REGN_BRND_DESC | object | Nectisora | Brand description (regional-report naming convention; same hierarchy as SC_BRND_DESC elsewhere). |
-| REGN_CAT_DESC | object | Cough & Cold | Category description (regional-report naming convention). |
-| REGN_FRAN_DESC | object | Oral Care | Franchise description (regional-report naming convention). |
+| MFG_SITE_NM | object | Beacon Supply Chain - Ashport | Manufacturing site name for this material. |
+| PLNT_CD | object | CA79 | Fulfilling plant/DC code — joins to dim_location.plnt_cd. |
+| PLNT_NM | object | Vantage Logistics - Stonecreek | Fulfilling plant/DC name. |
+| REGN_BRND_DESC | object | Glowell 2 | Brand description (regional-report naming convention; same hierarchy as SC_BRND_DESC elsewhere). |
+| REGN_CAT_DESC | object | Multivitamins | Category description (regional-report naming convention). |
+| REGN_FRAN_DESC | object | Sun & Outdoor | Franchise description (regional-report naming convention). |
 | REGN_GLOBL_BU_DESC | object | Everyday Wellness | Global Business Unit description (regional-report naming convention). |
+| MATERIAL | object | 100148 | Material (SKU) code — joins to dim_product.material. INVENTED (the real snapshot only carried MATL_DESC, no code). |
+| ORDR_QTY | float64 | 172.0 | Ordered quantity, in cases. INVENTED — the real snapshot had no quantity field on this table at all. |
+| DELV_QTY | float64 | 172.0 | Delivered quantity, in cases. INVENTED. DELV_QTY == ORDR_QTY - CUT_QTY. |
+| CUT_QTY | float64 | 0.0 | Cut quantity, in cases (ordered but not delivered). INVENTED. |
+| ORDR_VAL | float64 | 1290.0 | Ordered value in dollars (ORDR_QTY x list price). INVENTED. |
+| DELV_VAL | float64 | 1290.0 | Delivered value in dollars (DELV_QTY x list price). INVENTED. |
+| ORDR_TYPE_CD | object | ZOR | Order type code (Standard/Return/Free Goods/Sample/Intercompany). INVENTED — added so exclusion-rule questions are testable. |
+| ORDR_TYPE_DESC | object | Standard | Text for ORDR_TYPE_CD. |
+| CANCELLED_FL | object | NO | YES/NO — whether the customer cancelled this line. INVENTED. |
+| CANCELLED_RSN_CD | object | CNCD | Cancellation reason code, if CANCELLED_FL == 'YES'. INVENTED. |
+| CANCELLED_RSN_DESC | object | Found Alternate Supply | Text for CANCELLED_RSN_CD. |
+| CUT_RSN_PRIM_CD | object | ALOC | Primary cut reason code, if CUT_QTY > 0. INVENTED — biased toward 'Allocation' when this material's parent was realized on-allocation that week (see module docstring). |
+| CUT_RSN_PRIM_DESC | object | Allocation | Text for CUT_RSN_PRIM_CD. |
+| CUT_RSN_SECO_CD | object | CAPY | Secondary cut reason code, if present (~25% of cut lines). INVENTED. |
+| CUT_RSN_SECO_DESC | object | Capacity Constraint | Text for CUT_RSN_SECO_CD. |
+| RJCTN_RSN_PRIM_CD | object | ZA | Primary rejection reason code, if this line was rejected. INVENTED. |
+| RJCTN_RSN_PRIM_DESC | object | Rejected - Customer Request | Text for RJCTN_RSN_PRIM_CD. |
+| RJCTN_RSN_SECO_CD | object | ZA | Secondary rejection reason code, if present (~25% of rejected lines). INVENTED. |
+| RJCTN_RSN_SECO_DESC | object | Rejected - Customer Request | Text for RJCTN_RSN_SECO_CD. |
+| CUST_REQ_DELV_DT | datetime64[ns] | 2025-03-13 00:00:00 | Customer-requested delivery date, distinct from FST_PLAN_GI_DT. INVENTED — mirrors shipments.Req_dlv_dt's formula. |
+
+## `inbound_schedule`
+
+Forward inbound-receipt schedule by material/DC/week. INVENTED — not a mirror of any real source table; see facts/inbound_schedule.py.
+
+| Column | Type | Example | Description |
+|---|---|---|---|
+| material | object | 100001 | Material (SKU) code — joins to dim_product.material. |
+| dc | object | US78 | Distribution center code — joins to dim_location.plnt_cd. |
+| inbound_week | object | 2026-09-21 | Monday date of the forward week this receipt is scheduled for. |
+| inbound_qty_cases | float64 | 0.0 | Scheduled inbound receipt quantity, in cases. 0 where no receipt is scheduled that week. |
 
 ## `shipments`
 
@@ -127,109 +176,91 @@ Live open-order snapshot. Stand-in for SAP source table rcl_lab.rcl_agent_shipme
 
 | Column | Type | Example | Description |
 |---|---|---|---|
-| Name_1 | object | Ridgeline Wholesale Club | Customer name at the sold-to level. |
-| Sold_to_pt | object | 40234031 | Sold-to party code. |
-| Sales_Doc | object | 935191040 | Sales order document number. |
-| Created_on | datetime64[ns] | 2026-08-27 00:00:00 | Date the order line was created. |
-| Req_dlv_dt | datetime64[ns] | 2026-08-31 00:00:00 | Customer-requested delivery date. |
-| Item | object | 000020 | Order line item number within the sales document. |
-| Material | object | 100149 | Material (SKU) code — joins to dim_product.material. |
+| Name_1 | object | Value Retail Co | Customer name at the sold-to level. |
+| Sold_to_pt | object | 40343817 | Sold-to party code. |
+| Sales_Doc | object | 342171530 | Sales order document number. |
+| Created_on | datetime64[ns] | 2026-09-01 00:00:00 | Date the order line was created. |
+| Req_dlv_dt | datetime64[ns] | 2026-09-06 00:00:00 | Customer-requested delivery date. |
+| Item | object | 000030 | Order line item number within the sales document. |
+| Material | object | 100075 | Material (SKU) code — joins to dim_product.material. |
 | DIBI | int64 | 42 | Code seen in the real snapshot; business meaning not confirmed. Placeholder values only. |
-| DB | int64 | 23 | Code seen in the real snapshot; business meaning not confirmed. Placeholder values only. |
-| ItCa | object | ZTAQ | SAP item category code. |
+| DB | int64 | 11 | Code seen in the real snapshot; business meaning not confirmed. Placeholder values only. |
+| ItCa | object | ZTAE | SAP item category code. |
 | SU | object | CS | Sales unit (CS = case, EA = each). |
-| ShPt | object | UD26 | Shipping point — joins to dim_location.plnt_cd. |
-| MAD_Date | datetime64[ns] | 2026-08-30 00:00:00 | Material availability date. |
-| GI_Date | datetime64[ns] | 2026-08-31 00:00:00 | Goods issue date. |
-| Confirmed_Qty | float64 | 252.0 | Quantity SAP confirmed it can ship, in Order_Quantity's unit. |
-| Order_Quantity | float64 | 252.0 | Quantity the customer ordered. |
-| Rj | object | ZA | Rejection reason code, if the line (or part of it) was rejected. |
-| Route | object | UD7D03 | Shipping route code. |
-| PO_number | object | 877263 | Customer purchase-order number. |
-| Delivery_Header_Description | object | Standard | Free-text delivery header category (e.g. Manual Long Lead). |
+| ShPt | object | MX27 | Shipping point — joins to dim_location.plnt_cd. |
+| MAD_Date | datetime64[ns] | 2026-09-07 00:00:00 | Material availability date. |
+| GI_Date | datetime64[ns] | 2026-09-07 00:00:00 | Goods issue date. |
+| Confirmed_Qty | float64 | 360.0 | Quantity SAP confirmed it can ship, in Order_Quantity's unit. |
+| Order_Quantity | float64 | 360.0 | Quantity the customer ordered. |
+| Rj | object | ZC | Rejection reason code, if the line (or part of it) was rejected. |
+| Route | object | MX7D02 | Shipping route code. |
+| PO_number | object | 942431 | Customer purchase-order number. |
+| Delivery_Header_Description | object | Manual Long Lead | Free-text delivery header category (e.g. Manual Long Lead). |
 | Line_Block_Description | object | Exclusion | Reason the line is blocked, if any. |
-| Rejection_Description | object | Rejected - Customer Request | Text for the Rj code. |
+| DELIVERY_BLOCK_CD | object | 01 | Delivery block code, if any. INVENTED — real snapshot only showed the single coarser Line_Block_Description. |
+| DELIVERY_BLOCK_DESC | object | Delivery Block - Credit Hold | Text for DELIVERY_BLOCK_CD. |
+| BILLING_BLOCK_CD | object | B1 | Billing block code, if any. INVENTED. |
+| BILLING_BLOCK_DESC | object | Billing Block - Price Review | Text for BILLING_BLOCK_CD. |
+| CREDIT_BLOCK_CD | object | C2 | Credit block code, if any. INVENTED. |
+| CREDIT_BLOCK_DESC | object | Credit Block - Past Due | Text for CREDIT_BLOCK_CD. |
+| Rejection_Description | object | Rejected - Pricing Dispute | Text for the Rj code. |
 | Forward_Scheduling_Flag | bool | False | True if the line used forward (vs backward) scheduling. |
-| MATL_SHRT_DESC | object | GLOWELL 2 MULTIVITAMINS VARIANT 4 | Material short description. |
-| SC_GBU_DESC | object | Everyday Wellness | Global Business Unit description — joins to dim_product.gbu. |
-| SC_FRAN_DESC | object | Active Relief | Franchise description — joins to dim_product.franchise. |
+| MATL_SHRT_DESC | object | CLARINPLUS MULTIVITAMINS VARIANT 5 | Material short description. |
+| SC_GBU_DESC | object | Skin & Personal Care | Global Business Unit description — joins to dim_product.gbu. |
+| SC_FRAN_DESC | object | Daily Vitality | Franchise description — joins to dim_product.franchise. |
 | SC_CAT_DESC | object | Multivitamins | Category description — joins to dim_product.category. |
-| SC_BRND_DESC | object | Glowell 2 | Brand description — joins to dim_product.brand. |
-| MATL_PARNT_CD | object | 900030 | Parent material code — joins to dim_product.material_parent_cd and allocation.PARENT_CODE. |
-| MATL_PARNT_DESC | object | GLOWELL 2 MULTIVITAMINS PARENT | Parent material description. |
+| SC_BRND_DESC | object | Clarinplus | Brand description — joins to dim_product.brand. |
+| MATL_PARNT_CD | object | 900015 | Parent material code — joins to dim_product.material_parent_cd and allocation.PARENT_CODE. |
+| MATL_PARNT_DESC | object | CLARINPLUS MULTIVITAMINS PARENT | Parent material description. |
 | DSPLY_IND | object | X | Display indicator ('X' if this is a store-display SKU). |
 | NPI_IND | object | X | New-product-introduction indicator ('X' if NPI). |
-| Display_Line_Flag | bool | False | True if this is a display line. |
+| Display_Line_Flag | bool | True | True if this is a display line. |
 | NPI_Line_Flag | bool | False | True if this line is a new product introduction. |
 | Future_Dated_PO_Flag | bool | False | True if the PO is dated in the future relative to entry. |
-| List_price | float64 | 10.64 | List price per each — joins to dim_product.list_price. |
+| List_price | float64 | 21.86 | List price per each — joins to dim_product.list_price. |
 | Unit_Unconfirmed | float64 | 0.0 | Order_Quantity minus Confirmed_Qty. |
-| GTS_Order | float64 | 2681.28 | Gross trade sales value of the ordered quantity (Order_Quantity x List_price). Naming inferred from context — confirm with SME. |
-| GTS_Confirmed | float64 | 2681.28 | Gross trade sales value of the confirmed quantity. |
+| GTS_Order | float64 | 7869.599999999999 | Gross trade sales value of the ordered quantity (Order_Quantity x List_price). Naming inferred from context — confirm with SME. |
+| GTS_Confirmed | float64 | 7869.599999999999 | Gross trade sales value of the confirmed quantity. |
 | GTS_Unconfirmed | float64 | 0.0 | Gross trade sales value of the unconfirmed (shorted) quantity. |
 | UFR | float64 | 100.0 | Unit fill rate, percent (0-100) = Confirmed_Qty / Order_Quantity. |
 | FR | float64 | 100.0 | Fill rate, percent (0-100). Modeled identically to UFR here — confirm the real distinction with SME. |
-| CLIENT_ITEM_NO | object | 100149 | Client's internal item number. Renamed from the real column name (which embedded the client's identity) — see dimensions/products.py. |
-| GBU | object | Everyday Wellness | Global Business Unit (duplicate of SC_GBU_DESC in the real table). |
-| NEED_STATE_DS | object | Glowell 2 NS | Consumer 'need state' description. |
-| SALES_FRANCHISE | object | Multivitamins - Glowell 2 | Combined category/brand sales-franchise label. |
-| KEY_CUST_NUM | object | 0048000068 | Key (banner-level) customer number — joins to dim_customer.key_cust_num. |
-| KEY_CUST_NM | object | Ridgeline Wholesale Club | Key (banner-level) customer name. |
-| CUST_MATL_NUM | object | 505295 | Customer's own material/SKU number for this material, if on file. |
+| CLIENT_ITEM_NO | object | 100075 | Client's internal item number. Renamed from the real column name (which embedded the client's identity) — see dimensions/products.py. |
+| GBU | object | Skin & Personal Care | Global Business Unit (duplicate of SC_GBU_DESC in the real table). |
+| NEED_STATE_DS | object | Clarinplus NS | Consumer 'need state' description. |
+| SALES_FRANCHISE | object | Multivitamins - Clarinplus | Combined category/brand sales-franchise label. |
+| KEY_CUST_NUM | object | 0048000039 | Key (banner-level) customer number — joins to dim_customer.key_cust_num. |
+| KEY_CUST_NM | object | Value Retail Co | Key (banner-level) customer name. |
+| CUST_MATL_NUM | object | 575836 | Customer's own material/SKU number for this material, if on file. |
 | DSTN_CHN_STS_CD | object | 31 | Distribution channel status code — joins to dim_product.dstn_chn_sts_cd. |
-| SHIP_DT | datetime64[ns] | 2026-08-31 00:00:00 | Actual/planned ship date for this line (mirrors GI_Date here). |
-| REPORT_REFRESHED_DT | datetime64[us] | 2026-09-16 11:38:15.355123 | Timestamp this snapshot was generated. |
-| US78_ATP_EA | float64 | 400.0 | Available-to-promise inventory at distribution center US78, in eaches. |
-| US78_ATP_CS | float64 | 11.1111 | Available-to-promise inventory at distribution center US78, in cases. |
+| SHIP_DT | datetime64[ns] | 2026-09-07 00:00:00 | Actual/planned ship date for this line (mirrors GI_Date here). |
+| REPORT_REFRESHED_DT | datetime64[us] | 2026-09-17 12:20:31.176462 | Timestamp this snapshot was generated. |
+| US78_ATP_EA | float64 | 15.0 | Available-to-promise inventory at distribution center US78, in eaches. |
+| US78_ATP_CS | float64 | 0.8333 | Available-to-promise inventory at distribution center US78, in cases. |
 | US78_Inventory_QI_Hold_EA | float64 | 0.0 | Inventory on quality-inspection hold at distribution center US78, in eaches. |
 | US78_Inventory_QI_Hold_CS | float64 | 0.0 | Inventory on quality-inspection hold at distribution center US78, in cases. |
-| US78_Blocked_Inventory_EA | float64 | 0.0 | Blocked (unavailable) inventory at distribution center US78, in eaches. |
-| US78_Blocked_Inventory_CS | float64 | 0.0 | Blocked (unavailable) inventory at distribution center US78, in cases. |
-| US78_IN_TRANSIT_EA | float64 | 17.0 | In-transit inventory at distribution center US78, in eaches. |
-| US78_IN_TRANSIT_CS | float64 | 0.4722 | In-transit inventory at distribution center US78, in cases. |
-| MX27_ATP_EA | float64 | 239.0 | Available-to-promise inventory at distribution center MX27, in eaches. |
-| MX27_ATP_CS | float64 | 6.6389 | Available-to-promise inventory at distribution center MX27, in cases. |
+| US78_Blocked_Inventory_EA | float64 | 1.0 | Blocked (unavailable) inventory at distribution center US78, in eaches. |
+| US78_Blocked_Inventory_CS | float64 | 0.0556 | Blocked (unavailable) inventory at distribution center US78, in cases. |
+| US78_IN_TRANSIT_EA | float64 | 83.0 | In-transit inventory at distribution center US78, in eaches. |
+| US78_IN_TRANSIT_CS | float64 | 4.6111 | In-transit inventory at distribution center US78, in cases. |
+| MX27_ATP_EA | float64 | 155.0 | Available-to-promise inventory at distribution center MX27, in eaches. |
+| MX27_ATP_CS | float64 | 8.6111 | Available-to-promise inventory at distribution center MX27, in cases. |
 | MX27_Inventory_QI_Hold_EA | float64 | 0.0 | Inventory on quality-inspection hold at distribution center MX27, in eaches. |
 | MX27_Inventory_QI_Hold_CS | float64 | 0.0 | Inventory on quality-inspection hold at distribution center MX27, in cases. |
 | MX27_Blocked_Inventory_EA | float64 | 0.0 | Blocked (unavailable) inventory at distribution center MX27, in eaches. |
 | MX27_Blocked_Inventory_CS | float64 | 0.0 | Blocked (unavailable) inventory at distribution center MX27, in cases. |
-| MX27_IN_TRANSIT_EA | float64 | 237.0 | In-transit inventory at distribution center MX27, in eaches. |
-| MX27_IN_TRANSIT_CS | float64 | 6.5833 | In-transit inventory at distribution center MX27, in cases. |
-| CA79_ATP_EA | float64 | 319.0 | Available-to-promise inventory at distribution center CA79, in eaches. |
-| CA79_ATP_CS | float64 | 8.8611 | Available-to-promise inventory at distribution center CA79, in cases. |
+| MX27_IN_TRANSIT_EA | float64 | 66.0 | In-transit inventory at distribution center MX27, in eaches. |
+| MX27_IN_TRANSIT_CS | float64 | 3.6667 | In-transit inventory at distribution center MX27, in cases. |
+| CA79_ATP_EA | float64 | 130.0 | Available-to-promise inventory at distribution center CA79, in eaches. |
+| CA79_ATP_CS | float64 | 7.2222 | Available-to-promise inventory at distribution center CA79, in cases. |
 | CA79_Inventory_QI_Hold_EA | float64 | 0.0 | Inventory on quality-inspection hold at distribution center CA79, in eaches. |
 | CA79_Inventory_QI_Hold_CS | float64 | 0.0 | Inventory on quality-inspection hold at distribution center CA79, in cases. |
 | CA79_Blocked_Inventory_EA | float64 | 0.0 | Blocked (unavailable) inventory at distribution center CA79, in eaches. |
 | CA79_Blocked_Inventory_CS | float64 | 0.0 | Blocked (unavailable) inventory at distribution center CA79, in cases. |
-| CA79_IN_TRANSIT_EA | float64 | 223.0 | In-transit inventory at distribution center CA79, in eaches. |
-| CA79_IN_TRANSIT_CS | float64 | 6.1944 | In-transit inventory at distribution center CA79, in cases. |
-| UD26_ATP_EA | float64 | 256.0 | Available-to-promise inventory at distribution center UD26, in eaches. |
-| UD26_ATP_CS | float64 | 7.1111 | Available-to-promise inventory at distribution center UD26, in cases. |
-| UD26_Inventory_QI_Hold_EA | float64 | 0.0 | Inventory on quality-inspection hold at distribution center UD26, in eaches. |
-| UD26_Inventory_QI_Hold_CS | float64 | 0.0 | Inventory on quality-inspection hold at distribution center UD26, in cases. |
-| UD26_Blocked_Inventory_EA | float64 | 0.0 | Blocked (unavailable) inventory at distribution center UD26, in eaches. |
-| UD26_Blocked_Inventory_CS | float64 | 0.0 | Blocked (unavailable) inventory at distribution center UD26, in cases. |
-| UD26_IN_TRANSIT_EA | float64 | 45.0 | In-transit inventory at distribution center UD26, in eaches. |
-| UD26_IN_TRANSIT_CS | float64 | 1.25 | In-transit inventory at distribution center UD26, in cases. |
-| CA49_ATP_EA | float64 | 139.0 | Available-to-promise inventory at distribution center CA49, in eaches. |
-| CA49_ATP_CS | float64 | 3.8611 | Available-to-promise inventory at distribution center CA49, in cases. |
-| CA49_Inventory_QI_Hold_EA | float64 | 0.0 | Inventory on quality-inspection hold at distribution center CA49, in eaches. |
-| CA49_Inventory_QI_Hold_CS | float64 | 0.0 | Inventory on quality-inspection hold at distribution center CA49, in cases. |
-| CA49_Blocked_Inventory_EA | float64 | 0.0 | Blocked (unavailable) inventory at distribution center CA49, in eaches. |
-| CA49_Blocked_Inventory_CS | float64 | 0.0 | Blocked (unavailable) inventory at distribution center CA49, in cases. |
-| CA49_IN_TRANSIT_EA | float64 | 100.0 | In-transit inventory at distribution center CA49, in eaches. |
-| CA49_IN_TRANSIT_CS | float64 | 2.7778 | In-transit inventory at distribution center CA49, in cases. |
-| CA86_ATP_EA | float64 | 579.0 | Available-to-promise inventory at distribution center CA86, in eaches. |
-| CA86_ATP_CS | float64 | 16.0833 | Available-to-promise inventory at distribution center CA86, in cases. |
-| CA86_Inventory_QI_Hold_EA | float64 | 27.0 | Inventory on quality-inspection hold at distribution center CA86, in eaches. |
-| CA86_Inventory_QI_Hold_CS | float64 | 0.75 | Inventory on quality-inspection hold at distribution center CA86, in cases. |
-| CA86_Blocked_Inventory_EA | float64 | 0.0 | Blocked (unavailable) inventory at distribution center CA86, in eaches. |
-| CA86_Blocked_Inventory_CS | float64 | 0.0 | Blocked (unavailable) inventory at distribution center CA86, in cases. |
-| CA86_IN_TRANSIT_EA | float64 | 503.0 | In-transit inventory at distribution center CA86, in eaches. |
-| CA86_IN_TRANSIT_CS | float64 | 13.9722 | In-transit inventory at distribution center CA86, in cases. |
-| TOTAL_ATP_EA | float64 | 1932.0 | Available-to-promise, summed across all distribution centers, in eaches. |
-| TOTAL_ATP_CS | float64 | 53.6667 | Available-to-promise, summed across all distribution centers, in cases. |
-| NETWORK_IN_TRANSIT_EA | float64 | 1125.0 | In-transit inventory, summed across all distribution centers, in eaches. |
+| CA79_IN_TRANSIT_EA | float64 | 164.0 | In-transit inventory at distribution center CA79, in eaches. |
+| CA79_IN_TRANSIT_CS | float64 | 9.1111 | In-transit inventory at distribution center CA79, in cases. |
+| TOTAL_ATP_EA | float64 | 300.0 | Available-to-promise, summed across all distribution centers, in eaches. |
+| TOTAL_ATP_CS | float64 | 16.6667 | Available-to-promise, summed across all distribution centers, in cases. |
+| NETWORK_IN_TRANSIT_EA | float64 | 313.0 | In-transit inventory, summed across all distribution centers, in eaches. |
 
 ## `vulnerability`
 
@@ -243,18 +274,21 @@ SKU-level vulnerability/risk report. Stand-in for rcl_lab.rcl_agent_vreport.
 | CALWEEK | object | 202439 | Calendar year+week, compact format e.g. '202632'. |
 | WEEK_NUM | uint32 | 39 | ISO week number. |
 | NATIONAL_CODE | object |  | National code (null in the sample). |
-| EANUPC | object | 270524223175 | EAN/UPC of the material. |
+| EANUPC | object | 393242822324 | EAN/UPC of the material. |
 | MATERIAL | object | 100001 | Material (SKU) code — joins to dim_product.material. |
-| MATERIAL_DESC | object | CURAFRESH CLEANSERS VARIANT 1 | Material description. |
+| MATERIAL_DESC | object | BOTALUX MULTIVITAMINS VARIANT 1 | Material description. |
 | AS_REGION | object | NA | Region (always 'NA' in the sample). |
-| AS_COO | object | Mexico | Country of origin/manufacture. |
+| AS_COO | object | United States | Country of origin/manufacture. |
 | AS_OP_CO | object | US Consumer Health | Operating company. |
 | AS_GBU | object | Skin & Personal Care | Global Business Unit. |
 | AS_SUB_GBU | object | Skin & Personal Care | Sub-GBU grouping. Column name inferred — the real header was truncated in the screenshot. |
+| REPORT_WEEK | object | 2024-09-23 | INVENTED — the week this row was assessed/projected as of. Equals WEEK_START_DATE for real historical rows; pinned at the latest real week for forward-horizon rows. |
+| HORIZON_OFFSET | int64 | 0 | INVENTED — 0 for real historical rows; 1..vulnerability_horizon_weeks for forward-projected rows (WEEK_START_DATE is that many weeks after REPORT_WEEK). |
 | SINGLE_SOURCE_FLAG | bool | False | INVENTED — true if the material has only one qualified supplier/site. |
-| SAFETY_STOCK_DAYS | float64 | 9.4 | INVENTED — days of safety stock currently held. |
-| DAYS_OF_SUPPLY | float64 | 14.5 | INVENTED — total days of supply on hand plus in transit. |
-| BACKORDER_RISK_SCORE | float64 | 37.4 | INVENTED — 0-100 backorder risk score. |
-| FORECAST_ERROR_PCT | float64 | 20.5 | INVENTED — recent forecast error, percent. |
-| OPEN_PO_COVERAGE_DAYS | float64 | 18.7 | INVENTED — days of demand covered by open purchase orders. |
-| RISK_TIER | object | Medium | INVENTED — Low/Medium/High/Critical, derived from the underlying risk index. |
+| SAFETY_STOCK_DAYS | float64 | 12.4 | INVENTED — days of safety stock currently held. |
+| DAYS_OF_SUPPLY | float64 | 29.9 | INVENTED — total days of supply on hand plus in transit. |
+| BACKORDER_RISK_SCORE | float64 | 24.1 | INVENTED — 0-100 backorder risk score. |
+| FORECAST_ERROR_PCT | float64 | 21.9 | INVENTED — recent forecast error, percent. |
+| OPEN_PO_COVERAGE_DAYS | float64 | 14.9 | INVENTED — days of demand covered by open purchase orders. |
+| RISK_TIER | object | Low | INVENTED — Low/Medium/High/Critical, derived from the underlying risk index. |
+| STATUS | object | Green | INVENTED — Green/Yellow/Red/Red-Black, the V-report's own vocabulary (distinct from RISK_TIER's Low/Medium/High/Critical), derived from the same risk index. |

@@ -58,3 +58,18 @@ def risk_tier(risk_index: pd.Series) -> pd.Series:
         bins=[-0.01, 0.25, 0.5, 0.75, 1.01],
         labels=["Low", "Medium", "High", "Critical"],
     ).astype(str)
+
+
+def vreport_status(risk_index: pd.Series) -> pd.Series:
+    """Green/Yellow/Red/Red-Black — the V-report's own vocabulary.
+
+    Distinct from risk_tier's Low/Medium/High/Critical (a different table's
+    labeling convention over the same underlying risk_index) — kept as a
+    separate function rather than relabeling risk_tier's output so the two
+    tables' domains don't silently drift into meaning the same thresholds.
+    """
+    return pd.cut(
+        risk_index,
+        bins=[-0.01, 0.4, 0.65, 0.85, 1.01],
+        labels=["Green", "Yellow", "Red", "Red-Black"],
+    ).astype(str)

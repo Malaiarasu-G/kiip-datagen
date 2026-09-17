@@ -21,6 +21,8 @@ TABLE_DESCRIPTIONS = {
     "historical": "Historical order/delivery detail used for ETD lead-time modeling. Stand-in for rcl_lab.rcl_agent_cuts_tact_attr_dtl.",
     "allocation": "Daily (AM/PM) inventory allocation snapshot. Stand-in for rcl_lab.rcl_agent_osas.",
     "vulnerability": "SKU-level vulnerability/risk report. Stand-in for rcl_lab.rcl_agent_vreport.",
+    "atp_snapshot": "Available-to-promise by material/DC, as of the current date. INVENTED — not a mirror of any real source table; see facts/atp_snapshot.py.",
+    "inbound_schedule": "Forward inbound-receipt schedule by material/DC/week. INVENTED — not a mirror of any real source table; see facts/inbound_schedule.py.",
 }
 
 _SHIPMENTS_COLUMNS: Dict[str, str] = {
@@ -45,6 +47,12 @@ _SHIPMENTS_COLUMNS: Dict[str, str] = {
     "PO_number": "Customer purchase-order number.",
     "Delivery_Header_Description": "Free-text delivery header category (e.g. Manual Long Lead).",
     "Line_Block_Description": "Reason the line is blocked, if any.",
+    "DELIVERY_BLOCK_CD": "Delivery block code, if any. INVENTED — real snapshot only showed the single coarser Line_Block_Description.",
+    "DELIVERY_BLOCK_DESC": "Text for DELIVERY_BLOCK_CD.",
+    "BILLING_BLOCK_CD": "Billing block code, if any. INVENTED.",
+    "BILLING_BLOCK_DESC": "Text for BILLING_BLOCK_CD.",
+    "CREDIT_BLOCK_CD": "Credit block code, if any. INVENTED.",
+    "CREDIT_BLOCK_DESC": "Text for CREDIT_BLOCK_CD.",
     "Rejection_Description": "Text for the Rj code.",
     "Forward_Scheduling_Flag": "True if the line used forward (vs backward) scheduling.",
     "MATL_SHRT_DESC": "Material short description.",
@@ -94,6 +102,7 @@ _HISTORICAL_COLUMNS: Dict[str, str] = {
     "SHIP_TO_CUST_NUM": "Ship-to location number.",
     "SOLD_TO_CUST_NM": "Sold-to customer name.",
     "DELV_HDR_BLK_CD": "Delivery header block code, if the delivery was blocked.",
+    "DELV_HDR_BLK_DESC": "Text for DELV_HDR_BLK_CD.",
     "MAD_FISC_YR_MO_NUM": "Fiscal year_month of the material-availability date, e.g. '2023_11'.",
     "MAD_FISC_YR_NBR": "Fiscal year of the material-availability date.",
     "MAD_FISC_YR_WK_NUM": "Fiscal year_week of the material-availability date, e.g. '2023_wk47'.",
@@ -118,6 +127,26 @@ _HISTORICAL_COLUMNS: Dict[str, str] = {
     "REGN_CAT_DESC": "Category description (regional-report naming convention).",
     "REGN_FRAN_DESC": "Franchise description (regional-report naming convention).",
     "REGN_GLOBL_BU_DESC": "Global Business Unit description (regional-report naming convention).",
+    "MATERIAL": "Material (SKU) code — joins to dim_product.material. INVENTED (the real snapshot only carried MATL_DESC, no code).",
+    "ORDR_QTY": "Ordered quantity, in cases. INVENTED — the real snapshot had no quantity field on this table at all.",
+    "DELV_QTY": "Delivered quantity, in cases. INVENTED. DELV_QTY == ORDR_QTY - CUT_QTY.",
+    "CUT_QTY": "Cut quantity, in cases (ordered but not delivered). INVENTED.",
+    "ORDR_VAL": "Ordered value in dollars (ORDR_QTY x list price). INVENTED.",
+    "DELV_VAL": "Delivered value in dollars (DELV_QTY x list price). INVENTED.",
+    "ORDR_TYPE_CD": "Order type code (Standard/Return/Free Goods/Sample/Intercompany). INVENTED — added so exclusion-rule questions are testable.",
+    "ORDR_TYPE_DESC": "Text for ORDR_TYPE_CD.",
+    "CANCELLED_FL": "YES/NO — whether the customer cancelled this line. INVENTED.",
+    "CANCELLED_RSN_CD": "Cancellation reason code, if CANCELLED_FL == 'YES'. INVENTED.",
+    "CANCELLED_RSN_DESC": "Text for CANCELLED_RSN_CD.",
+    "CUT_RSN_PRIM_CD": "Primary cut reason code, if CUT_QTY > 0. INVENTED — biased toward 'Allocation' when this material's parent was realized on-allocation that week (see module docstring).",
+    "CUT_RSN_PRIM_DESC": "Text for CUT_RSN_PRIM_CD.",
+    "CUT_RSN_SECO_CD": "Secondary cut reason code, if present (~25% of cut lines). INVENTED.",
+    "CUT_RSN_SECO_DESC": "Text for CUT_RSN_SECO_CD.",
+    "RJCTN_RSN_PRIM_CD": "Primary rejection reason code, if this line was rejected. INVENTED.",
+    "RJCTN_RSN_PRIM_DESC": "Text for RJCTN_RSN_PRIM_CD.",
+    "RJCTN_RSN_SECO_CD": "Secondary rejection reason code, if present (~25% of rejected lines). INVENTED.",
+    "RJCTN_RSN_SECO_DESC": "Text for RJCTN_RSN_SECO_CD.",
+    "CUST_REQ_DELV_DT": "Customer-requested delivery date, distinct from FST_PLAN_GI_DT. INVENTED — mirrors shipments.Req_dlv_dt's formula.",
 }
 
 _ALLOCATION_COLUMNS: Dict[str, str] = {
@@ -139,6 +168,11 @@ _ALLOCATION_COLUMNS: Dict[str, str] = {
     "MONTHYEAR": "Month/year of CALENDAR_DT, e.g. '9/2026'.",
     "CALENDAR_DT": "Calendar date of this allocation snapshot.",
     "PERIOD": "AM or PM — allocation appears to be evaluated twice daily.",
+    "CUSTOMER_GROUP": "Customer segment (dim_customer.cust_seg_cd). INVENTED — the real snapshot had no customer dimension on this table at all; grain is deliberately segment-level, not per ship-to.",
+    "ALLOCATED_QTY": "Quantity allocated to this parent/date/period/customer-group, in cases. INVENTED.",
+    "ORDERED_QTY": "Quantity ordered against the allocation. INVENTED.",
+    "REMAINING_QTY": "ALLOCATED_QTY - ORDERED_QTY, floored at 0. INVENTED.",
+    "PCT_CONSUMED": "100 x ORDERED_QTY / ALLOCATED_QTY. Can exceed 100 (over-consumed). INVENTED.",
 }
 
 _VULNERABILITY_COLUMNS: Dict[str, str] = {
@@ -163,6 +197,24 @@ _VULNERABILITY_COLUMNS: Dict[str, str] = {
     "FORECAST_ERROR_PCT": "INVENTED — recent forecast error, percent.",
     "OPEN_PO_COVERAGE_DAYS": "INVENTED — days of demand covered by open purchase orders.",
     "RISK_TIER": "INVENTED — Low/Medium/High/Critical, derived from the underlying risk index.",
+    "REPORT_WEEK": "INVENTED — the week this row was assessed/projected as of. Equals WEEK_START_DATE for real historical rows; pinned at the latest real week for forward-horizon rows.",
+    "HORIZON_OFFSET": "INVENTED — 0 for real historical rows; 1..vulnerability_horizon_weeks for forward-projected rows (WEEK_START_DATE is that many weeks after REPORT_WEEK).",
+    "STATUS": "INVENTED — Green/Yellow/Red/Red-Black, the V-report's own vocabulary (distinct from RISK_TIER's Low/Medium/High/Critical), derived from the same risk index.",
+}
+
+_ATP_SNAPSHOT_COLUMNS: Dict[str, str] = {
+    "as_of_date": "Date this ATP snapshot was generated.",
+    "material": "Material (SKU) code — joins to dim_product.material.",
+    "dc": "Distribution center code — joins to dim_location.plnt_cd.",
+    "atp_eaches": "Available-to-promise inventory, in eaches. One consistent value per (material, dc) — contrast with shipments' per-order-line ATP columns.",
+    "atp_cases": "atp_eaches / dim_product.case_pack_size.",
+}
+
+_INBOUND_SCHEDULE_COLUMNS: Dict[str, str] = {
+    "material": "Material (SKU) code — joins to dim_product.material.",
+    "dc": "Distribution center code — joins to dim_location.plnt_cd.",
+    "inbound_week": "Monday date of the forward week this receipt is scheduled for.",
+    "inbound_qty_cases": "Scheduled inbound receipt quantity, in cases. 0 where no receipt is scheduled that week.",
 }
 
 _DIM_PRODUCT_COLUMNS: Dict[str, str] = {
@@ -212,6 +264,8 @@ _TABLE_COLUMN_DOCS = {
     "historical": _HISTORICAL_COLUMNS,
     "allocation": _ALLOCATION_COLUMNS,
     "vulnerability": _VULNERABILITY_COLUMNS,
+    "atp_snapshot": _ATP_SNAPSHOT_COLUMNS,
+    "inbound_schedule": _INBOUND_SCHEDULE_COLUMNS,
 }
 
 _DC_PIVOT_PATTERN = re.compile(

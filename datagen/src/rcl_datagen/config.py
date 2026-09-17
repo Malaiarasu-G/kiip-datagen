@@ -37,6 +37,13 @@ def load_config(path: Union[str, Path], scale: str = "dev") -> Config:
     as_of = raw["dates"].get("as_of_date")
     raw["dates"]["as_of_date"] = dt.date.fromisoformat(as_of) if as_of else dt.date.today()
     raw["dates"]["history_start"] = dt.date.fromisoformat(raw["dates"]["history_start"])
-    raw["dates"]["history_end"] = dt.date.fromisoformat(raw["dates"]["history_end"])
+
+    # null/missing -> as_of_date, so historical data always reaches "today" (whatever
+    # that is when the script runs) instead of drifting behind a stale literal date —
+    # "last week"/"last month"/"this quarter" questions need real rows to answer from.
+    history_end = raw["dates"].get("history_end")
+    raw["dates"]["history_end"] = (
+        dt.date.fromisoformat(history_end) if history_end else raw["dates"]["as_of_date"]
+    )
 
     return _to_namespace(raw)

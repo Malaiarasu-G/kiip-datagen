@@ -14,16 +14,16 @@ SELECT Sales_Doc, Item, Material, MATL_SHRT_DESC, Order_Quantity, Confirmed_Qty,
 
 | Sales_Doc | Item | Material | MATL_SHRT_DESC | Order_Quantity | Confirmed_Qty | GI_Date |
 |---|---|---|---|---|---|---|
-| 417879820 | 000070 | 100057 | PUREFRESH CLEANSERS VARIANT 2 | 306.0 | 306.0 | 2026-08-28 00:00:00 |
-| 935191040 | 000020 | 100149 | GLOWELL 2 MULTIVITAMINS VARIANT 4 | 252.0 | 252.0 | 2026-08-31 00:00:00 |
-| 727069000 | 000070 | 100015 | LUMOCARE CONDITIONER VARIANT 5 | 66.0 | 66.0 | 2026-09-02 00:00:00 |
-| 995215740 | 000020 | 100136 | FRESCACARE FIRST AID VARIANT 1 | 180.0 | 180.0 | 2026-09-05 00:00:00 |
-| 219232240 | 000090 | 100116 | CLARINTONE MOISTURIZERS VARIANT 1 | 108.0 | 108.0 | 2026-09-05 00:00:00 |
-| 694902460 | 000080 | 100067 | CALMIDERM MULTIVITAMINS VARIANT 2 | 24.0 | 24.0 | 2026-09-07 00:00:00 |
-| 175762610 | 000040 | 100121 | VERDEFLEX MOISTURIZERS VARIANT 1 | 144.0 | 144.0 | 2026-09-08 00:00:00 |
-| 989306060 | 000050 | 100091 | CURAFRESH 3 COUGH & COLD VARIANT 1 | 120.0 | 120.0 | 2026-09-09 00:00:00 |
-| 294498700 | 000080 | 100077 | CURAPLUS CONDITIONER VARIANT 2 | 288.0 | 288.0 | 2026-09-09 00:00:00 |
-| 803718180 | 000090 | 100024 | SOLISORA FIRST AID VARIANT 4 | 360.0 | 360.0 | 2026-09-10 00:00:00 |
+| 704399400 | 000030 | 100141 | PUREIVA MULTIVITAMINS VARIANT 1 | 912.0 | 912.0 | 2026-08-29 00:00:00 |
+| 584072740 | 000090 | 100069 | CLARINLUX CLEANSERS VARIANT 4 | 384.0 | 384.0 | 2026-08-30 00:00:00 |
+| 532917370 | 000020 | 100008 | AQUADERM MULTIVITAMINS VARIANT 3 | 576.0 | 576.0 | 2026-08-31 00:00:00 |
+| 614127900 | 000030 | 100099 | AQUACARE FIRST AID VARIANT 4 | 132.0 | 132.0 | 2026-08-31 00:00:00 |
+| 327248100 | 000090 | 100167 | AQUAFLEX MULTIVITAMINS VARIANT 2 | 72.0 | 72.0 | 2026-09-01 00:00:00 |
+| 983830210 | 000020 | 100080 | PUREFLEX 3 MULTIVITAMINS VARIANT 5 | 96.0 | 96.0 | 2026-09-01 00:00:00 |
+| 397019380 | 000010 | 100163 | NOVAIVA MULTIVITAMINS VARIANT 3 | 252.0 | 252.0 | 2026-09-01 00:00:00 |
+| 322252550 | 000030 | 100085 | BOTALUX 2 MOISTURIZERS VARIANT 5 | 72.0 | 72.0 | 2026-09-01 00:00:00 |
+| 193595580 | 000040 | 100110 | SOOTHCARE SUNSCREEN VARIANT 5 | 168.0 | 168.0 | 2026-09-02 00:00:00 |
+| 669424130 | 000010 | 100024 | PUREFLEX COUGH & COLD VARIANT 4 | 138.0 | 138.0 | 2026-09-02 00:00:00 |
 
 ## What is our unit fill rate by customer for the current open-order snapshot?
 
@@ -37,16 +37,16 @@ SELECT KEY_CUST_NM,
 
 | KEY_CUST_NM | unit_fill_rate_pct |
 |---|---|
-| Harbor Foods 2 | 83.1 |
-| Harbor Pharmacy | 84.1 |
-| Heritage Pharmacy | 86.3 |
-| Lakeside Superstore | 86.7 |
-| Brookside Foods | 87.5 |
-| Heritage Wholesale Club | 88.0 |
-| Cedar Market 2 | 88.4 |
-| Harbor Foods 3 | 89.0 |
-| Union Mart | 89.5 |
-| Cedar Retail Co | 90.0 |
+| Ridgeline Wholesale Club | 90.8 |
+| Value Retail Co | 92.4 |
+| Cedar Grocers | 92.4 |
+| Prime Foods | 92.6 |
+| Lakeside Superstore | 93.0 |
+| Harbor Foods | 93.4 |
+| Cedar Market | 94.1 |
+| Harbor Foods 2 | 94.3 |
+| Ridgeline Superstore | 94.5 |
+| Coastal Mart | 94.9 |
 
 ## Which order lines shipped short, and why?
 
@@ -59,16 +59,16 @@ SELECT Sales_Doc, Item, MATL_SHRT_DESC, Order_Quantity, Confirmed_Qty, Rj, Rejec
 
 | Sales_Doc | Item | MATL_SHRT_DESC | Order_Quantity | Confirmed_Qty | Rj | Rejection_Description |
 |---|---|---|---|---|---|---|
-| 820803640 | 000040 | CALMITONE MOISTURIZERS VARIANT 5 | 768.0 | 480.0 | None | None |
-| 316790560 | 000080 | SOOTHDERM CLEANSERS VARIANT 4 | 96.0 | 72.0 | None | None |
-| 226871190 | 000090 | TERRAPLUS MOISTURIZERS VARIANT 2 | 30.0 | 12.0 | None | None |
-| 203274640 | 000090 | FRESCAFRESH CONDITIONER VARIANT 5 | 104.0 | 48.0 | ZA | Rejected - Customer Request |
-| 472837190 | 000090 | CURAFRESH CLEANSERS VARIANT 1 | 228.0 | 84.0 | None | None |
-| 911226430 | 000040 | PUREFRESH CLEANSERS VARIANT 5 | 378.0 | 36.0 | None | None |
-| 988957710 | 000090 | GLOIVA MULTIVITAMINS VARIANT 3 | 306.0 | 126.0 | None | None |
-| 642873640 | 000040 | AVENTONE CLEANSERS VARIANT 4 | 240.0 | 192.0 | None | None |
-| 941612620 | 000020 | NOVAIVA MULTIVITAMINS VARIANT 3 | 648.0 | 252.0 | None | None |
-| 321878620 | 000050 | NOVAIVA MULTIVITAMINS VARIANT 2 | 648.0 | 468.0 | None | None |
+| 527568030 | 000010 | AQUADERM MULTIVITAMINS VARIANT 4 | 612.0 | 288.0 | ZC | Rejected - Pricing Dispute |
+| 842227710 | 000010 | NECTISWELL 2 FIRST AID VARIANT 5 | 624.0 | 288.0 | None | None |
+| 584544530 | 000070 | PUREORA CLEANSERS VARIANT 4 | 168.0 | 72.0 | None | None |
+| 823075070 | 000050 | NOVAIVA MULTIVITAMINS VARIANT 5 | 72.0 | 36.0 | ZA | Rejected - Customer Request |
+| 532917370 | 000050 | PUREORA CLEANSERS VARIANT 4 | 384.0 | 96.0 | None | None |
+| 967489970 | 000020 | CLARINLUX CLEANSERS VARIANT 3 | 1008.0 | 384.0 | None | None |
+| 793135310 | 000030 | CURADERM FIRST AID VARIANT 4 | 432.0 | 0.0 | None | None |
+| 971469040 | 000090 | NOVAIVA MULTIVITAMINS VARIANT 3 | 576.0 | 108.0 | None | None |
+| 806611110 | 000020 | FRESCADERM PAIN RELIEF VARIANT 4 | 36.0 | 0.0 | None | None |
+| 180700980 | 000050 | NECTISWELL MOISTURIZERS VARIANT 2 | 12.0 | 0.0 | None | None |
 
 ## Which SKUs are on allocation right now, and why?
 
@@ -83,16 +83,16 @@ SELECT PARENT_CODE, PARENT_DESC, SC_BRAND, KC_DESC, CALENDAR_DT, PERIOD
 
 | PARENT_CODE | PARENT_DESC | SC_BRAND | KC_DESC | CALENDAR_DT | PERIOD |
 |---|---|---|---|---|---|
-| 900003 | LUMOCARE CONDITIONER PARENT | Lumocare | Short Supply | 2026-09-16 00:00:00 | AM |
-| 900008 | PUREPLUS CONDITIONER PARENT | Pureplus | Short Supply | 2026-09-16 00:00:00 | PM |
-| 900009 | TERRAFLEX ANTACIDS PARENT | Terraflex | Short Supply | 2026-09-16 00:00:00 | AM |
-| 900013 | GLOIVA MULTIVITAMINS PARENT | Gloiva | New Capacity Ramp | 2026-09-16 00:00:00 | PM |
-| 900016 | CURAPLUS CONDITIONER PARENT | Curaplus | Quality Hold | 2026-09-16 00:00:00 | PM |
-| 900021 | PUREFRESH 2 CLEANSERS PARENT | Purefresh 2 | Short Supply | 2026-09-16 00:00:00 | PM |
-| 900025 | VERDEFLEX MOISTURIZERS PARENT | Verdeflex | New Capacity Ramp | 2026-09-16 00:00:00 | AM |
-| 900026 | CALMITONE MOISTURIZERS PARENT | Calmitone | Quality Hold | 2026-09-16 00:00:00 | PM |
-| 900029 | PUREIVA MULTIVITAMINS PARENT | Pureiva | Quality Hold | 2026-09-16 00:00:00 | AM |
-| 900030 | GLOWELL 2 MULTIVITAMINS PARENT | Glowell 2 | Short Supply | 2026-09-16 00:00:00 | PM |
+| 900002 | AQUADERM MULTIVITAMINS PARENT | Aquaderm | Short Supply | 2026-09-17 00:00:00 | PM |
+| 900002 | AQUADERM MULTIVITAMINS PARENT | Aquaderm | Short Supply | 2026-09-17 00:00:00 | PM |
+| 900002 | AQUADERM MULTIVITAMINS PARENT | Aquaderm | Short Supply | 2026-09-17 00:00:00 | PM |
+| 900002 | AQUADERM MULTIVITAMINS PARENT | Aquaderm | Short Supply | 2026-09-17 00:00:00 | PM |
+| 900002 | AQUADERM MULTIVITAMINS PARENT | Aquaderm | Short Supply | 2026-09-17 00:00:00 | PM |
+| 900002 | AQUADERM MULTIVITAMINS PARENT | Aquaderm | Short Supply | 2026-09-17 00:00:00 | PM |
+| 900003 | AQUADERM 2 CLEANSERS PARENT | Aquaderm 2 | Short Supply | 2026-09-17 00:00:00 | AM |
+| 900003 | AQUADERM 2 CLEANSERS PARENT | Aquaderm 2 | Short Supply | 2026-09-17 00:00:00 | AM |
+| 900003 | AQUADERM 2 CLEANSERS PARENT | Aquaderm 2 | Short Supply | 2026-09-17 00:00:00 | AM |
+| 900003 | AQUADERM 2 CLEANSERS PARENT | Aquaderm 2 | Short Supply | 2026-09-17 00:00:00 | AM |
 
 ## Which materials are the most supply-vulnerable this week, and why?
 
@@ -106,16 +106,16 @@ SELECT MATERIAL, MATERIAL_DESC, RISK_TIER, BACKORDER_RISK_SCORE, SINGLE_SOURCE_F
 
 | MATERIAL | MATERIAL_DESC | RISK_TIER | BACKORDER_RISK_SCORE | SINGLE_SOURCE_FLAG | DAYS_OF_SUPPLY |
 |---|---|---|---|---|---|
-| 100005 | CURAFRESH CLEANSERS VARIANT 5 | High | 62.2 | True | 21.7 |
-| 100113 | TERRAPLUS MOISTURIZERS VARIANT 3 | High | 58.7 | False | 24.0 |
-| 100105 | PUREFRESH 2 CLEANSERS VARIANT 5 | Medium | 56.1 | True | 12.7 |
-| 100102 | PUREFRESH 2 CLEANSERS VARIANT 2 | Medium | 54.8 | False | 22.3 |
-| 100143 | PUREIVA MULTIVITAMINS VARIANT 3 | High | 51.2 | False | 31.2 |
-| 100109 | FRESCAIVA CLEANSERS VARIANT 4 | Medium | 50.5 | False | 30.9 |
-| 100079 | CURAPLUS CONDITIONER VARIANT 4 | High | 49.5 | True | 15.3 |
-| 100125 | VERDEFLEX MOISTURIZERS VARIANT 5 | High | 49.1 | False | 28.9 |
-| 100103 | PUREFRESH 2 CLEANSERS VARIANT 3 | High | 48.1 | False | 30.6 |
-| 100092 | CURAFRESH 3 COUGH & COLD VARIANT 2 | Medium | 47.7 | False | 16.8 |
+| 100026 | PUREFLEX 2 COUGH & COLD VARIANT 1 | High | 82.0 | True | 20.7 |
+| 100014 | AQUADERM 2 CLEANSERS VARIANT 4 | High | 79.0 | False | 17.0 |
+| 100067 | CLARINLUX CLEANSERS VARIANT 2 | High | 77.9 | True | 16.3 |
+| 100010 | AQUADERM MULTIVITAMINS VARIANT 5 | High | 76.0 | True | 5.5 |
+| 100097 | AQUACARE FIRST AID VARIANT 2 | High | 73.7 | False | 21.5 |
+| 100171 | VITAFLEX ANTACIDS VARIANT 1 | High | 66.7 | False | 16.5 |
+| 100018 | NECTISDERM CLEANSERS VARIANT 3 | High | 64.6 | False | 18.5 |
+| 100038 | FRESCADERM PAIN RELIEF VARIANT 3 | High | 56.4 | False | 30.7 |
+| 100103 | AQUAPLUS SUNSCREEN VARIANT 3 | Medium | 54.2 | False | 26.1 |
+| 100092 | CURADERM FIRST AID VARIANT 2 | High | 51.8 | True | 8.5 |
 
 ## By customer segment and plant, how many days after the planned goods-issue date do orders actually ship, and how often are they late? (this is our ETD signal)
 
@@ -132,16 +132,16 @@ SELECT CUST_SEG_CD, PLNT_CD,
 
 | CUST_SEG_CD | PLNT_CD | order_lines | avg_days_actual_vs_planned | pct_late |
 |---|---|---|---|---|
-| FC&D | MX27 | 424 | 0.9 | 52.1 |
-| Mass/Club | UD26 | 413 | 0.8 | 51.8 |
-| Mass/Club | US78 | 425 | 0.8 | 51.5 |
-| Mass/Club | CA79 | 411 | 0.8 | 51.1 |
-| Grocery | CA49 | 422 | 0.8 | 50.0 |
-| Ecom | MX27 | 434 | 0.7 | 48.6 |
-| Exports & All Others | MX27 | 681 | 0.7 | 48.5 |
-| FC&D | UD26 | 369 | 0.8 | 48.5 |
-| Mass/Club | CA86 | 438 | 0.7 | 48.2 |
-| Exports & All Others | CA86 | 632 | 0.7 | 48.1 |
+| Mass/Club | US78 | 1175 | 0.7 | 49.6 |
+| Ecom | MX27 | 542 | 0.7 | 49.4 |
+| Grocery | US78 | 1066 | 0.8 | 49.2 |
+| FC&D | CA79 | 1622 | 0.8 | 49.1 |
+| Ecom | CA79 | 559 | 0.7 | 49.0 |
+| FC&D | MX27 | 1685 | 0.7 | 47.8 |
+| Grocery | MX27 | 1175 | 0.7 | 47.6 |
+| Drug & Specialty | MX27 | 775 | 0.7 | 47.6 |
+| Mass/Club | MX27 | 1344 | 0.7 | 47.3 |
+| Exports & All Others | MX27 | 411 | 0.6 | 46.7 |
 
 ## OTIF isn't a stored metric — compute an OTIF-style on-time-in-full rate for the current open-order snapshot.
 
@@ -154,7 +154,7 @@ SELECT
 
 | otif_style_rate_pct |
 |---|
-| 55.9 |
+| 56.2 |
 
 ## Which brands have the highest order-line cut rate? (a 'why are sales declining' diagnostic)
 
@@ -170,16 +170,16 @@ SELECT SC_BRND_DESC,
 
 | SC_BRND_DESC | total_lines | cut_lines | cut_rate_pct |
 |---|---|---|---|
-| Vitaflex | 58 | 13.0 | 22.4 |
-| Soothflex | 63 | 11.0 | 17.5 |
-| Aventone | 58 | 10.0 | 17.2 |
-| Glowell 2 | 59 | 10.0 | 16.9 |
-| Frescaplus | 42 | 7.0 | 16.7 |
-| Lumocare | 60 | 10.0 | 16.7 |
-| Pureiva | 79 | 13.0 | 16.5 |
-| Purefresh 2 | 57 | 9.0 | 15.8 |
-| Terraflex | 41 | 6.0 | 14.6 |
-| Novaiva | 55 | 8.0 | 14.5 |
+| Botalux 2 | 62 | 12.0 | 19.4 |
+| Glowell 2 | 53 | 10.0 | 18.9 |
+| Purewell | 52 | 9.0 | 17.3 |
+| Aquaflex | 42 | 7.0 | 16.7 |
+| Soothwell | 54 | 9.0 | 16.7 |
+| Clarinplus | 67 | 11.0 | 16.4 |
+| Purederm | 38 | 6.0 | 15.8 |
+| Aquaplus | 49 | 7.0 | 14.3 |
+| Frescacare | 57 | 8.0 | 14.0 |
+| Novaiva | 58 | 8.0 | 13.8 |
 
 ## What new-product-introduction (NPI) lines are currently open?
 
@@ -192,16 +192,16 @@ SELECT Sales_Doc, Item, MATL_SHRT_DESC, KEY_CUST_NM, Order_Quantity, Confirmed_Q
 
 | Sales_Doc | Item | MATL_SHRT_DESC | KEY_CUST_NM | Order_Quantity | Confirmed_Qty |
 |---|---|---|---|---|---|
-| 902942730 | 000030 | FRESCAPLUS CLEANSERS VARIANT 3 | Union Foods | 72.0 | 72.0 |
-| 106451180 | 000040 | FRESCACARE FIRST AID VARIANT 3 | Harbor Foods 2 | 132.0 | 132.0 |
-| 756347560 | 000010 | CLARINTONE MOISTURIZERS VARIANT 4 | Heritage Superstore | 216.0 | 216.0 |
-| 100870960 | 000050 | CALMITONE MOISTURIZERS VARIANT 2 | Summit Mart | 384.0 | 384.0 |
-| 483092780 | 000090 | CALMITONE MOISTURIZERS VARIANT 2 | Green Foods | 816.0 | 816.0 |
-| 149593970 | 000090 | CLARINTONE MOISTURIZERS VARIANT 4 | Heritage Wholesale Club | 24.0 | 24.0 |
-| 518535080 | 000050 | FRESCACARE FIRST AID VARIANT 3 | Cedar Grocers | 216.0 | 216.0 |
-| 417879820 | 000020 | FRESCACARE FIRST AID VARIANT 3 | Heritage Superstore 2 | 108.0 | 108.0 |
-| 836005840 | 000050 | CALMITONE MOISTURIZERS VARIANT 2 | Green Foods | 816.0 | 816.0 |
-| 667370350 | 000010 | CALMITONE MOISTURIZERS VARIANT 2 | Cedar Grocers | 960.0 | 480.0 |
+| 451998980 | 000070 | SOLISFLEX MULTIVITAMINS VARIANT 4 | Ridgeline Wholesale Club | 1104.0 | 624.0 |
+| 645752330 | 000060 | PUREFLEX 3 MULTIVITAMINS VARIANT 3 | Harbor Foods | 624.0 | 624.0 |
+| 733020430 | 000030 | BOTALUX 2 MOISTURIZERS VARIANT 4 | Coastal Mart | 132.0 | 132.0 |
+| 483092780 | 000060 | PUREFLEX 3 MULTIVITAMINS VARIANT 3 | Coastal Mart | 768.0 | 768.0 |
+| 732624840 | 000070 | AQUADERM 2 CLEANSERS VARIANT 2 | Cedar Grocers | 396.0 | 396.0 |
+| 237541820 | 000070 | CALMITONE MOISTURIZERS VARIANT 2 | Harbor Foods | 48.0 | 48.0 |
+| 549208610 | 000060 | SOLISFLEX MULTIVITAMINS VARIANT 4 | Ridgeline Superstore | 960.0 | 960.0 |
+| 729550500 | 000080 | BOTALUX 2 MOISTURIZERS VARIANT 4 | Prime Foods | 108.0 | 108.0 |
+| 808115590 | 000020 | PUREFLEX 3 MULTIVITAMINS VARIANT 3 | Lakeside Superstore | 240.0 | 240.0 |
+| 257136640 | 000090 | FRESCACARE FIRST AID VARIANT 3 | Harbor Foods | 264.0 | 264.0 |
 
 ## Do we have open orders for materials that are obsolete or discontinued?
 
@@ -214,13 +214,504 @@ SELECT Sales_Doc, Item, MATL_SHRT_DESC, DSTN_CHN_STS_CD, Order_Quantity
 
 | Sales_Doc | Item | MATL_SHRT_DESC | DSTN_CHN_STS_CD | Order_Quantity |
 |---|---|---|---|---|
-| 560061500 | 000040 | SOOTHDERM CLEANSERS VARIANT 2 | 33 | 168.0 |
-| 836005840 | 000080 | CALMIDERM 2 COUGH & COLD VARIANT 1 | 33 | 12.0 |
-| 316790560 | 000080 | SOOTHDERM CLEANSERS VARIANT 4 | 33 | 96.0 |
-| 513061970 | 000080 | SOOTHDERM CLEANSERS VARIANT 4 | 33 | 120.0 |
-| 332947080 | 000010 | FRESCAFRESH CONDITIONER VARIANT 4 | 33 | 192.0 |
-| 778356980 | 000090 | SOOTHDERM CLEANSERS VARIANT 4 | 33 | 384.0 |
-| 203274640 | 000090 | FRESCAFRESH CONDITIONER VARIANT 5 | 33 | 104.0 |
-| 279973230 | 000060 | SOOTHDERM CLEANSERS VARIANT 5 | 33 | 312.0 |
-| 991971810 | 000030 | CALMIDERM 2 COUGH & COLD VARIANT 2 | 33 | 132.0 |
-| 357016860 | 000040 | CALMIDERM 2 COUGH & COLD VARIANT 1 | 33 | 216.0 |
+| 429510650 | 000010 | BOTALUX 2 MOISTURIZERS VARIANT 1 | 32 | 228.0 |
+| 829899260 | 000030 | BOTALUX 2 MOISTURIZERS VARIANT 3 | 32 | 192.0 |
+| 530031820 | 000030 | AQUAPLUS SUNSCREEN VARIANT 5 | 33 | 288.0 |
+| 694237450 | 000070 | SOLISFLEX MULTIVITAMINS VARIANT 2 | 32 | 288.0 |
+| 971906310 | 000030 | TERRAFRESH MULTIVITAMINS VARIANT 4 | 33 | 96.0 |
+| 914125480 | 000090 | BOTALUX 2 MOISTURIZERS VARIANT 5 | 32 | 132.0 |
+| 806611110 | 000020 | FRESCADERM PAIN RELIEF VARIANT 4 | 32 | 36.0 |
+| 313310560 | 000010 | AQUAPLUS SUNSCREEN VARIANT 1 | 33 | 324.0 |
+| 521636180 | 000050 | CALMIDERM COUGH & COLD VARIANT 2 | 33 | 60.0 |
+| 313211290 | 000080 | CALMIDERM COUGH & COLD VARIANT 1 | 33 | 12.0 |
+
+## What is the fill rate for all historical orders, by month?
+
+```sql
+SELECT DATE_TRUNC('month', FST_PLAN_GI_DT) AS month,
+                   ROUND(100.0 * SUM(DELV_QTY) / NULLIF(SUM(ORDR_QTY), 0), 1) AS unit_fill_rate_pct
+            FROM historical
+            WHERE CANCELLED_FL = 'NO' AND ORDR_TYPE_DESC = 'Standard'
+            GROUP BY 1
+            ORDER BY 1
+```
+
+| month | unit_fill_rate_pct |
+|---|---|
+| 2023-01-01 00:00:00 | 91.7 |
+| 2023-02-01 00:00:00 | 85.6 |
+| 2023-03-01 00:00:00 | 89.8 |
+| 2023-04-01 00:00:00 | 90.5 |
+| 2023-05-01 00:00:00 | 87.7 |
+| 2023-06-01 00:00:00 | 89.5 |
+| 2023-07-01 00:00:00 | 86.5 |
+| 2023-08-01 00:00:00 | 90.1 |
+| 2023-09-01 00:00:00 | 90.2 |
+| 2023-10-01 00:00:00 | 90.9 |
+
+## What was unit fill rate by DC last month?
+
+```sql
+SELECT PLNT_CD, PLNT_NM,
+                   ROUND(100.0 * SUM(DELV_QTY) / NULLIF(SUM(ORDR_QTY), 0), 1) AS unit_fill_rate_pct
+            FROM historical
+            WHERE CANCELLED_FL = 'NO' AND ORDR_TYPE_DESC = 'Standard'
+              AND FST_PLAN_GI_DT >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL 1 MONTH)
+              AND FST_PLAN_GI_DT <  DATE_TRUNC('month', CURRENT_DATE)
+            GROUP BY PLNT_CD, PLNT_NM
+            ORDER BY unit_fill_rate_pct ASC
+```
+
+| PLNT_CD | PLNT_NM | unit_fill_rate_pct |
+|---|---|---|
+| MX27 | Meridian Freight Co - Hollow Ridge | 31.8 |
+
+## What was dollar fill rate by customer banner last quarter?
+
+```sql
+SELECT KEY_CUST_NM,
+                   ROUND(100.0 * SUM(DELV_VAL) / NULLIF(SUM(ORDR_VAL), 0), 1) AS dollar_fill_rate_pct
+            FROM historical
+            WHERE CANCELLED_FL = 'NO' AND ORDR_TYPE_DESC = 'Standard'
+              AND FST_PLAN_GI_DT >= CURRENT_DATE - INTERVAL 3 MONTH
+            GROUP BY KEY_CUST_NM
+            ORDER BY dollar_fill_rate_pct ASC
+```
+
+| KEY_CUST_NM | dollar_fill_rate_pct |
+|---|---|
+| Ridgeline Wholesale Club | 59.2 |
+| Ridgeline Superstore | 67.8 |
+| Prime Foods | 68.0 |
+| Cedar Grocers | 68.6 |
+| Cedar Market | 69.3 |
+| Coastal Mart | 70.8 |
+| Harbor Foods 2 | 71.0 |
+| Lakeside Superstore | 71.2 |
+| Harbor Foods | 73.9 |
+| Value Retail Co | 75.9 |
+
+## Which 10 SKUs had the lowest fill rate last month?
+
+```sql
+SELECT MATERIAL, MATL_DESC,
+                   ROUND(100.0 * SUM(DELV_QTY) / NULLIF(SUM(ORDR_QTY), 0), 1) AS unit_fill_rate_pct
+            FROM historical
+            WHERE CANCELLED_FL = 'NO' AND ORDR_TYPE_DESC = 'Standard'
+              AND FST_PLAN_GI_DT >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL 1 MONTH)
+              AND FST_PLAN_GI_DT <  DATE_TRUNC('month', CURRENT_DATE)
+            GROUP BY MATERIAL, MATL_DESC
+            HAVING SUM(ORDR_QTY) > 0
+            ORDER BY unit_fill_rate_pct ASC
+            LIMIT 10
+```
+
+| MATERIAL | MATL_DESC | unit_fill_rate_pct |
+|---|---|---|
+| 100024 | PUREFLEX COUGH & COLD VARIANT 4 | 15.2 |
+| 100077 | PUREFLEX 3 MULTIVITAMINS VARIANT 2 | 15.4 |
+| 100109 | SOOTHCARE SUNSCREEN VARIANT 4 | 16.7 |
+| 100144 | PUREIVA MULTIVITAMINS VARIANT 4 | 17.4 |
+| 100097 | AQUACARE FIRST AID VARIANT 2 | 17.8 |
+| 100110 | SOOTHCARE SUNSCREEN VARIANT 5 | 17.8 |
+| 100136 | FRESCACARE FIRST AID VARIANT 1 | 18.1 |
+| 100162 | NOVAIVA MULTIVITAMINS VARIANT 2 | 18.4 |
+| 100095 | CURADERM FIRST AID VARIANT 5 | 19.2 |
+| 100071 | CLARINPLUS MULTIVITAMINS VARIANT 1 | 19.9 |
+
+## Why did fill rate drop at DC2 last month? (planted pattern)
+
+```sql
+SELECT PLNT_CD, PLNT_NM, DATE_TRUNC('month', FST_PLAN_GI_DT) AS month, CUT_RSN_PRIM_DESC,
+                   COUNT(*) AS lines, SUM(CUT_QTY) AS total_cut_qty,
+                   ROUND(100.0 * SUM(DELV_QTY) / NULLIF(SUM(ORDR_QTY), 0), 1) AS unit_fill_rate_pct
+            FROM historical
+            WHERE CANCELLED_FL = 'NO' AND ORDR_TYPE_DESC = 'Standard'
+            GROUP BY PLNT_CD, PLNT_NM, month, CUT_RSN_PRIM_DESC
+            HAVING COUNT(*) >= 5
+            ORDER BY unit_fill_rate_pct ASC
+            LIMIT 20
+```
+
+| PLNT_CD | PLNT_NM | month | CUT_RSN_PRIM_DESC | lines | total_cut_qty | unit_fill_rate_pct |
+|---|---|---|---|---|---|---|
+| CA79 | Vantage Logistics - Stonecreek | 2023-02-01 00:00:00 | Allocation | 6 | 548.0 | 31.2 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2023-07-01 00:00:00 | Capacity Constraint | 5 | 319.0 | 31.3 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2026-08-01 00:00:00 | Allocation | 400 | 28518.0 | 31.8 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2024-11-01 00:00:00 | Capacity Constraint | 6 | 341.0 | 32.9 |
+| US78 | Cascade Distribution - Norwood | 2024-08-01 00:00:00 | Capacity Constraint | 6 | 511.0 | 34.8 |
+| US78 | Cascade Distribution - Norwood | 2024-04-01 00:00:00 | Capacity Constraint | 5 | 297.0 | 35.0 |
+| US78 | Cascade Distribution - Norwood | 2023-10-01 00:00:00 | Allocation | 5 | 456.0 | 36.8 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2023-03-01 00:00:00 | Transportation Delay | 5 | 425.0 | 37.4 |
+| US78 | Cascade Distribution - Norwood | 2024-11-01 00:00:00 | Allocation | 6 | 224.0 | 37.6 |
+| US78 | Cascade Distribution - Norwood | 2026-07-01 00:00:00 | Allocation | 11 | 633.0 | 40.3 |
+
+## What were total cut cases last month, by primary cut reason?
+
+```sql
+SELECT CUT_RSN_PRIM_DESC, SUM(CUT_QTY) AS total_cut_cases, COUNT(*) AS lines
+            FROM historical
+            WHERE CUT_QTY > 0
+              AND FST_PLAN_GI_DT >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL 1 MONTH)
+              AND FST_PLAN_GI_DT <  DATE_TRUNC('month', CURRENT_DATE)
+            GROUP BY CUT_RSN_PRIM_DESC
+            ORDER BY total_cut_cases DESC
+```
+
+| CUT_RSN_PRIM_DESC | total_cut_cases | lines |
+|---|---|---|
+| Allocation | 33031.0 | 470 |
+
+## What share of cuts last quarter was due to allocation?
+
+```sql
+SELECT ROUND(100.0 * SUM(CASE WHEN CUT_RSN_PRIM_DESC = 'Allocation' THEN CUT_QTY ELSE 0 END)
+                         / NULLIF(SUM(CUT_QTY), 0), 1) AS pct_cuts_from_allocation
+            FROM historical
+            WHERE CUT_QTY > 0 AND FST_PLAN_GI_DT >= CURRENT_DATE - INTERVAL 3 MONTH
+```
+
+| pct_cuts_from_allocation |
+|---|
+| 75.4 |
+
+## Why were orders for a given SKU cut last week? (traced to allocation where applicable)
+
+```sql
+SELECT h.MATERIAL, h.MATL_DESC, h.PLNT_CD, h.FST_PLAN_GI_DT, h.ORDR_QTY, h.CUT_QTY,
+                   h.CUT_RSN_PRIM_DESC, a.ALLOC_STATUS, a.PARENT_CODE
+            FROM historical h
+            LEFT JOIN dim_product p ON p.material = h.MATERIAL
+            LEFT JOIN allocation a
+                   ON a.PARENT_CODE = p.material_parent_cd
+                  AND a.CALENDAR_DT = h.FST_PLAN_GI_DT
+            WHERE h.CUT_QTY > 0
+              AND h.FST_PLAN_GI_DT >= CURRENT_DATE - INTERVAL 7 DAY
+            ORDER BY h.FST_PLAN_GI_DT DESC
+            LIMIT 20
+```
+
+| MATERIAL | MATL_DESC | PLNT_CD | FST_PLAN_GI_DT | ORDR_QTY | CUT_QTY | CUT_RSN_PRIM_DESC | ALLOC_STATUS | PARENT_CODE |
+|---|---|---|---|---|---|---|---|---|
+| 100041 | PUREDERM SUNSCREEN VARIANT 1 | MX27 | 2026-09-23 00:00:00 | 111.0 | 66.0 | Allocation | None | None |
+| 100075 | CLARINPLUS MULTIVITAMINS VARIANT 5 | MX27 | 2026-09-23 00:00:00 | 186.0 | 186.0 | None | None | None |
+| 100066 | CLARINLUX CLEANSERS VARIANT 1 | CA79 | 2026-09-23 00:00:00 | 194.0 | 194.0 | None | None | None |
+| 100105 | AQUAPLUS SUNSCREEN VARIANT 5 | MX27 | 2026-09-22 00:00:00 | 142.0 | 142.0 | None | None | None |
+| 100061 | PUREORA CLEANSERS VARIANT 1 | MX27 | 2026-09-21 00:00:00 | 178.0 | 178.0 | None | None | None |
+| 100037 | FRESCADERM PAIN RELIEF VARIANT 2 | MX27 | 2026-09-21 00:00:00 | 147.0 | 49.0 | Allocation | None | None |
+| 100034 | GLOWELL PAIN RELIEF VARIANT 4 | MX27 | 2026-09-20 00:00:00 | 34.0 | 34.0 | None | None | None |
+| 100118 | SOLISFLEX MULTIVITAMINS VARIANT 3 | US78 | 2026-09-20 00:00:00 | 189.0 | 189.0 | None | None | None |
+| 100043 | PUREDERM SUNSCREEN VARIANT 3 | CA79 | 2026-09-20 00:00:00 | 164.0 | 164.0 | None | None | None |
+| 100086 | NECTISWELL MOISTURIZERS VARIANT 1 | MX27 | 2026-09-19 00:00:00 | 33.0 | 33.0 | None | None | None |
+
+## Which customers had the highest rejection rate last quarter, and what were the secondary reasons?
+
+```sql
+SELECT KEY_CUST_NM,
+                   COUNT(*) AS total_lines,
+                   SUM(CASE WHEN RJCTN_RSN_PRIM_CD IS NOT NULL THEN 1 ELSE 0 END) AS rejected_lines,
+                   ROUND(100.0 * SUM(CASE WHEN RJCTN_RSN_PRIM_CD IS NOT NULL THEN 1 ELSE 0 END) / COUNT(*), 1) AS rejection_rate_pct,
+                   MODE(RJCTN_RSN_SECO_DESC) AS most_common_secondary_reason
+            FROM historical
+            WHERE FST_PLAN_GI_DT >= CURRENT_DATE - INTERVAL 3 MONTH
+            GROUP BY KEY_CUST_NM
+            ORDER BY rejection_rate_pct DESC
+```
+
+| KEY_CUST_NM | total_lines | rejected_lines | rejection_rate_pct | most_common_secondary_reason |
+|---|---|---|---|---|
+| Coastal Mart | 124 | 10.0 | 8.1 | Rejected - Customer Request |
+| Ridgeline Wholesale Club | 112 | 9.0 | 8.0 | None |
+| Value Retail Co | 115 | 8.0 | 7.0 | Rejected - Customer Request |
+| Cedar Market | 176 | 11.0 | 6.3 | Rejected - Customer Request |
+| Lakeside Superstore | 33 | 2.0 | 6.1 | None |
+| Cedar Grocers | 307 | 18.0 | 5.9 | Rejected - Customer Request |
+| Harbor Foods 2 | 328 | 19.0 | 5.8 | Rejected - Customer Request |
+| Harbor Foods | 147 | 8.0 | 5.4 | Rejected - Pricing Dispute |
+| Prime Foods | 62 | 3.0 | 4.8 | Rejected - Customer Request |
+| Ridgeline Superstore | 75 | 1.0 | 1.3 | None |
+
+## What is the cancellation rate by reason code this year?
+
+```sql
+SELECT CANCELLED_RSN_DESC,
+                   COUNT(*) AS cancelled_lines,
+                   ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM historical
+                                              WHERE DATE_PART('year', FST_PLAN_GI_DT) = DATE_PART('year', CURRENT_DATE)), 2) AS pct_of_all_lines
+            FROM historical
+            WHERE CANCELLED_FL = 'YES' AND DATE_PART('year', FST_PLAN_GI_DT) = DATE_PART('year', CURRENT_DATE)
+            GROUP BY CANCELLED_RSN_DESC
+            ORDER BY cancelled_lines DESC
+```
+
+| CANCELLED_RSN_DESC | cancelled_lines | pct_of_all_lines |
+|---|---|---|
+| Customer No Longer Needs | 52 | 1.32 |
+| Duplicate Order | 25 | 0.64 |
+| Price Discrepancy | 23 | 0.59 |
+| Found Alternate Supply | 16 | 0.41 |
+
+## What share of order lines shipped on or before the requested date last month?
+
+```sql
+SELECT ROUND(100.0 * SUM(CASE WHEN FST_ACTL_SHIP_DT <= CUST_REQ_DELV_DT THEN 1 ELSE 0 END)
+                         / NULLIF(SUM(CASE WHEN FST_ACTL_SHIP_DT IS NOT NULL THEN 1 ELSE 0 END), 0), 1) AS on_time_rate_pct
+            FROM historical
+            WHERE FST_PLAN_GI_DT >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL 1 MONTH)
+              AND FST_PLAN_GI_DT <  DATE_TRUNC('month', CURRENT_DATE)
+```
+
+| on_time_rate_pct |
+|---|
+| 51.7 |
+
+## How does on-time performance this month compare with last month?
+
+```sql
+SELECT DATE_TRUNC('month', FST_PLAN_GI_DT) AS month,
+                   ROUND(100.0 * SUM(CASE WHEN FST_ACTL_SHIP_DT <= CUST_REQ_DELV_DT THEN 1 ELSE 0 END)
+                         / NULLIF(SUM(CASE WHEN FST_ACTL_SHIP_DT IS NOT NULL THEN 1 ELSE 0 END), 0), 1) AS on_time_rate_pct
+            FROM historical
+            WHERE FST_PLAN_GI_DT >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL 1 MONTH)
+            GROUP BY 1
+            ORDER BY 1
+```
+
+| month | on_time_rate_pct |
+|---|---|
+| 2026-08-01 00:00:00 | 51.7 |
+| 2026-09-01 00:00:00 | 57.9 |
+
+## Which DC had the worst on-time performance this quarter?
+
+```sql
+SELECT PLNT_CD, PLNT_NM,
+                   ROUND(100.0 * SUM(CASE WHEN FST_ACTL_SHIP_DT <= CUST_REQ_DELV_DT THEN 1 ELSE 0 END)
+                         / NULLIF(SUM(CASE WHEN FST_ACTL_SHIP_DT IS NOT NULL THEN 1 ELSE 0 END), 0), 1) AS on_time_rate_pct
+            FROM historical
+            WHERE FST_PLAN_GI_DT >= CURRENT_DATE - INTERVAL 3 MONTH
+            GROUP BY PLNT_CD, PLNT_NM
+            ORDER BY on_time_rate_pct ASC
+```
+
+| PLNT_CD | PLNT_NM | on_time_rate_pct |
+|---|---|---|
+| CA79 | Vantage Logistics - Stonecreek | 51.8 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 53.8 |
+| US78 | Cascade Distribution - Norwood | 60.8 |
+
+## Why did on-time performance fall in a recent week at a given DC? (planted pattern)
+
+```sql
+SELECT PLNT_CD, PLNT_NM, DATE_TRUNC('week', FST_PLAN_GI_DT) AS week,
+                   COUNT(*) AS lines,
+                   ROUND(100.0 * SUM(CASE WHEN FST_ACTL_SHIP_DT <= CUST_REQ_DELV_DT THEN 1 ELSE 0 END)
+                         / NULLIF(SUM(CASE WHEN FST_ACTL_SHIP_DT IS NOT NULL THEN 1 ELSE 0 END), 0), 1) AS on_time_rate_pct
+            FROM historical
+            WHERE FST_PLAN_GI_DT >= CURRENT_DATE - INTERVAL 60 DAY
+            GROUP BY PLNT_CD, PLNT_NM, week
+            HAVING COUNT(*) >= 5
+            ORDER BY on_time_rate_pct ASC
+            LIMIT 20
+```
+
+| PLNT_CD | PLNT_NM | week | lines | on_time_rate_pct |
+|---|---|---|---|---|
+| CA79 | Vantage Logistics - Stonecreek | 2026-09-21 00:00:00 | 14 | 38.5 |
+| CA79 | Vantage Logistics - Stonecreek | 2026-08-31 00:00:00 | 31 | 44.8 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2026-08-03 00:00:00 | 126 | 45.4 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2026-08-10 00:00:00 | 84 | 49.3 |
+| CA79 | Vantage Logistics - Stonecreek | 2026-09-14 00:00:00 | 21 | 50.0 |
+| US78 | Cascade Distribution - Norwood | 2026-09-07 00:00:00 | 44 | 50.0 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2026-08-24 00:00:00 | 106 | 51.1 |
+| US78 | Cascade Distribution - Norwood | 2026-07-20 00:00:00 | 33 | 53.3 |
+| MX27 | Meridian Freight Co - Hollow Ridge | 2026-07-20 00:00:00 | 37 | 55.2 |
+| CA79 | Vantage Logistics - Stonecreek | 2026-07-20 00:00:00 | 42 | 56.8 |
+
+## What is the current order block rate, by block code?
+
+```sql
+SELECT DELIVERY_BLOCK_CD, DELIVERY_BLOCK_DESC, COUNT(*) AS blocked_lines,
+                   ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM shipments), 2) AS pct_of_open_book
+            FROM shipments
+            WHERE DELIVERY_BLOCK_CD IS NOT NULL
+            GROUP BY DELIVERY_BLOCK_CD, DELIVERY_BLOCK_DESC
+            ORDER BY blocked_lines DESC
+```
+
+| DELIVERY_BLOCK_CD | DELIVERY_BLOCK_DESC | blocked_lines | pct_of_open_book |
+|---|---|---|---|
+| 01 | Delivery Block - Credit Hold | 337 | 16.85 |
+| 02 | Delivery Block - Customer Request | 41 | 2.05 |
+
+## Which customers have the most blocked orders, and what is the value on hold?
+
+```sql
+SELECT KEY_CUST_NM,
+                   COUNT(*) AS blocked_lines,
+                   ROUND(SUM(GTS_Order), 2) AS value_on_hold
+            FROM shipments
+            WHERE DELIVERY_BLOCK_CD IS NOT NULL OR BILLING_BLOCK_CD IS NOT NULL OR CREDIT_BLOCK_CD IS NOT NULL
+            GROUP BY KEY_CUST_NM
+            ORDER BY blocked_lines DESC
+            LIMIT 15
+```
+
+| KEY_CUST_NM | blocked_lines | value_on_hold |
+|---|---|---|
+| Harbor Foods 2 | 296 | 1219972.02 |
+| Cedar Grocers | 48 | 192690.24 |
+| Cedar Market | 28 | 122819.96 |
+| Harbor Foods | 25 | 91510.08 |
+| Coastal Mart | 15 | 57492.92 |
+| Prime Foods | 10 | 29936.68 |
+| Ridgeline Superstore | 10 | 55567.98 |
+| Value Retail Co | 9 | 28083.36 |
+| Ridgeline Wholesale Club | 8 | 28239.48 |
+| Lakeside Superstore | 6 | 12530.48 |
+
+## What is allocation consumption by customer group this month?
+
+```sql
+SELECT CUSTOMER_GROUP,
+                   ROUND(100.0 * SUM(ORDERED_QTY) / NULLIF(SUM(ALLOCATED_QTY), 0), 1) AS pct_consumed
+            FROM allocation
+            WHERE DATE_TRUNC('month', CALENDAR_DT) = DATE_TRUNC('month', CURRENT_DATE)
+            GROUP BY CUSTOMER_GROUP
+            ORDER BY pct_consumed DESC
+```
+
+| CUSTOMER_GROUP | pct_consumed |
+|---|---|
+| Mass/Club | 59.0 |
+| Ecom | 58.0 |
+| FC&D | 58.0 |
+| Drug & Specialty | 58.0 |
+| Grocery | 57.8 |
+| Exports & All Others | 57.7 |
+
+## Which customers have consumed more than 90% of their allocation?
+
+```sql
+SELECT PARENT_CODE, PARENT_DESC, CUSTOMER_GROUP, CALENDAR_DT, PCT_CONSUMED
+            FROM allocation
+            WHERE PCT_CONSUMED > 90
+            ORDER BY PCT_CONSUMED DESC
+            LIMIT 20
+```
+
+| PARENT_CODE | PARENT_DESC | CUSTOMER_GROUP | CALENDAR_DT | PCT_CONSUMED |
+|---|---|---|---|---|
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-08-26 00:00:00 | 98.0 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-07-18 00:00:00 | 97.9 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-09-07 00:00:00 | 97.9 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-09-11 00:00:00 | 97.9 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-09-15 00:00:00 | 97.9 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-07-29 00:00:00 | 97.8 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-06-24 00:00:00 | 97.7 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-07-10 00:00:00 | 97.7 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-07-16 00:00:00 | 97.7 |
+| 900035 | VITAFLEX ANTACIDS PARENT | Mass/Club | 2026-07-23 00:00:00 | 97.7 |
+
+## What is ATP for a given SKU by DC, in cases and eaches?
+
+```sql
+SELECT a.material, p.material_desc, a.dc, a.atp_eaches, a.atp_cases
+            FROM atp_snapshot a
+            JOIN dim_product p ON p.material = a.material
+            ORDER BY a.material, a.dc
+            LIMIT 30
+```
+
+| material | material_desc | dc | atp_eaches | atp_cases |
+|---|---|---|---|---|
+| 100001 | BOTALUX MULTIVITAMINS VARIANT 1 | CA79 | 337.0 | 9.3611 |
+| 100001 | BOTALUX MULTIVITAMINS VARIANT 1 | MX27 | 406.0 | 11.2778 |
+| 100001 | BOTALUX MULTIVITAMINS VARIANT 1 | US78 | 287.0 | 7.9722 |
+| 100002 | BOTALUX MULTIVITAMINS VARIANT 2 | CA79 | 314.0 | 8.7222 |
+| 100002 | BOTALUX MULTIVITAMINS VARIANT 2 | MX27 | 263.0 | 7.3056 |
+| 100002 | BOTALUX MULTIVITAMINS VARIANT 2 | US78 | 298.0 | 8.2778 |
+| 100003 | BOTALUX MULTIVITAMINS VARIANT 3 | CA79 | 51.0 | 1.4167 |
+| 100003 | BOTALUX MULTIVITAMINS VARIANT 3 | MX27 | 307.0 | 8.5278 |
+| 100003 | BOTALUX MULTIVITAMINS VARIANT 3 | US78 | 258.0 | 7.1667 |
+| 100004 | BOTALUX MULTIVITAMINS VARIANT 4 | CA79 | 322.0 | 8.9444 |
+
+## What inbound quantity is expected for a given SKU over the next 4 weeks?
+
+```sql
+SELECT material, dc, inbound_week, inbound_qty_cases
+            FROM inbound_schedule
+            WHERE inbound_week <= (SELECT MIN(inbound_week) FROM inbound_schedule) + INTERVAL 27 DAY
+            ORDER BY material, dc, inbound_week
+            LIMIT 40
+```
+
+| material | dc | inbound_week | inbound_qty_cases |
+|---|---|---|---|
+| 100001 | CA79 | 2026-09-21 00:00:00 | 15.0 |
+| 100001 | CA79 | 2026-09-28 00:00:00 | 11.0 |
+| 100001 | CA79 | 2026-10-05 00:00:00 | 0.0 |
+| 100001 | CA79 | 2026-10-12 00:00:00 | 7.0 |
+| 100001 | MX27 | 2026-09-21 00:00:00 | 7.0 |
+| 100001 | MX27 | 2026-09-28 00:00:00 | 8.0 |
+| 100001 | MX27 | 2026-10-05 00:00:00 | 0.0 |
+| 100001 | MX27 | 2026-10-12 00:00:00 | 6.0 |
+| 100001 | US78 | 2026-09-21 00:00:00 | 0.0 |
+| 100001 | US78 | 2026-09-28 00:00:00 | 0.0 |
+
+## How many SKUs are on red V-report in the next two weeks?
+
+```sql
+SELECT COUNT(DISTINCT MATERIAL) AS red_sku_count
+            FROM vulnerability
+            WHERE HORIZON_OFFSET BETWEEN 1 AND 2
+              AND STATUS IN ('Red', 'Red-Black')
+```
+
+| red_sku_count |
+|---|
+| 5 |
+
+## What is the V-report status distribution this week?
+
+```sql
+SELECT STATUS, COUNT(*) AS sku_count
+            FROM vulnerability
+            WHERE HORIZON_OFFSET = 0 AND WEEK_START_DATE = (
+                SELECT MAX(WEEK_START_DATE) FROM vulnerability WHERE HORIZON_OFFSET = 0
+            )
+            GROUP BY STATUS
+            ORDER BY sku_count DESC
+```
+
+| STATUS | sku_count |
+|---|---|
+| Green | 153 |
+| Yellow | 22 |
+| Red | 5 |
+
+## Which SKUs moved from Yellow to Red since last week? (planted pattern)
+
+```sql
+WITH weeks AS (
+                SELECT DISTINCT WEEK_START_DATE FROM vulnerability WHERE HORIZON_OFFSET = 0
+                ORDER BY WEEK_START_DATE DESC LIMIT 2
+            )
+            SELECT cur.MATERIAL, cur.MATERIAL_DESC, prev.STATUS AS prior_status, cur.STATUS AS latest_status
+            FROM vulnerability cur
+            JOIN vulnerability prev
+              ON prev.MATERIAL = cur.MATERIAL
+             AND prev.HORIZON_OFFSET = 0
+             AND prev.WEEK_START_DATE = (SELECT MIN(WEEK_START_DATE) FROM weeks)
+            WHERE cur.HORIZON_OFFSET = 0
+              AND cur.WEEK_START_DATE = (SELECT MAX(WEEK_START_DATE) FROM weeks)
+              AND prev.STATUS = 'Yellow' AND cur.STATUS IN ('Red', 'Red-Black')
+```
+
+| MATERIAL | MATERIAL_DESC | prior_status | latest_status |
+|---|---|---|---|
+| 100010 | AQUADERM MULTIVITAMINS VARIANT 5 | Yellow | Red |
+| 100014 | AQUADERM 2 CLEANSERS VARIANT 4 | Yellow | Red |
+| 100026 | PUREFLEX 2 COUGH & COLD VARIANT 1 | Yellow | Red |
+| 100067 | CLARINLUX CLEANSERS VARIANT 2 | Yellow | Red |
+| 100097 | AQUACARE FIRST AID VARIANT 2 | Yellow | Red |

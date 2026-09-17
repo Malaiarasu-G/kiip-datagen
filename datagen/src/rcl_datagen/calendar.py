@@ -40,6 +40,18 @@ def build_daily_calendar(start: dt.date, end: dt.date) -> pd.DataFrame:
     return df
 
 
+def build_forward_weeks(last_week_start: dt.date, n_weeks: int) -> pd.DataFrame:
+    """n_weeks Monday dates strictly after `last_week_start`.
+
+    Used for vulnerability's forward horizon and the inbound schedule — both
+    need future week labels but not a full calendar (no fiscal labels, no
+    material-week risk projection; see risk.py / vulnerability.py for why the
+    risk index itself is NOT extended into these weeks).
+    """
+    dates = [last_week_start + dt.timedelta(weeks=k) for k in range(1, n_weeks + 1)]
+    return pd.DataFrame({"week_start_date": dates})
+
+
 def build_weekly_calendar(daily: pd.DataFrame) -> pd.DataFrame:
     """One row per ISO week (Monday date as week_start_date) — matches the
     vulnerability report's grain."""

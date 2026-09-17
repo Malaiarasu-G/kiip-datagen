@@ -8,12 +8,14 @@ seed: 42
 
 dates:
   history_start: "2023-01-01"      # start of historical (cuts) data
-  history_end: "2025-12-31"        # end of historical data
+  history_end: null                # null = use as_of_date (today) — keeps "last week/month" questions answerable
   as_of_date: null                 # null = use today's date when the script runs
   open_order_horizon_days: 60      # live open orders: as_of_date .. as_of_date + N
   open_order_lookback_days: 21     # ... and back to as_of_date - N (recently created lines)
   allocation_lookback_days: 90     # how many days of allocation snapshots to generate
   vulnerability_weeks: 104         # how many weekly vulnerability snapshots to generate
+  vulnerability_horizon_weeks: 13  # forward-projected weeks fanned out from the latest report week
+  inbound_horizon_weeks: 14        # weeks of forward inbound-receipt visibility
 
 fiscal_calendar:
   # ASSUMPTION: fiscal week/month are simplified to the ISO calendar (Monday-start
@@ -31,9 +33,9 @@ dimensions:
   num_brands_per_category: 2
   num_materials_per_brand: 5
   num_plants: 8                    # manufacturing + distribution sites
-  num_distribution_centers: 6      # subset of plants that hold sellable inventory (<= num_plants)
-  num_customers: 45
-  num_ship_to_per_customer_max: 3
+  num_distribution_centers: 3      # subset of plants that hold sellable inventory (<= num_plants)
+  num_customers: 10                # these are banners (key customers) — see dimensions/customers.py
+  num_ship_to_per_customer_max: 9  # uniform 1..9 -> mean 5 ship-tos/banner, ~50 total across 10 banners
 
 volumes:
   # Row-count targets per named scale. Pick with --scale on the CLI (default: dev).
@@ -55,8 +57,28 @@ business_rules:
   allocation_rate_base: 0.08       # baseline % of SKUs on allocation on a given day/period
   risk_high_tier_target_rate: 0.12 # rough target share of material-weeks landing in High/Critical vulnerability
 
+  # --- historical order/delivery detail (cuts, rejections, cancellations) ---
+  historical_cut_probability: 0.15
+  historical_rejection_rate: 0.06
+  historical_cancellation_rate: 0.03
+  allocation_cut_bias: 0.75        # P(cut_reason == "Allocation") when the material's parent was on-allocation that week; small baseline otherwise
+
+  # --- allocation consumption (customer-group grain) -------------------------
+  allocation_tightness_risk_weight: 1.8   # higher risk -> less allocation headroom -> consumption % climbs toward/past 100
+
+  # --- block codes (shipments.py open orders; historical.py delivery header) ---
+  delivery_block_rate: 0.05
+  billing_block_rate: 0.03
+  credit_block_rate: 0.02
+
+  # --- inbound schedule -------------------------------------------------------
+  inbound_receipt_probability: 0.6  # chance a given (material, dc, week) has any scheduled receipt at all
+
 output:
   duckdb_path: "output/rcl_poc.duckdb"
   parquet_dir: "output/parquet"
   csv_dir: "output/csv"
   write_csv: true
+
+scenarios:
+  enabled: true   # deterministic "planted pattern" pass (see src/rcl_datagen/scenarios.py) — set false for pure statistical randomness

@@ -4,6 +4,10 @@
 /allocation osas/
 /vulnerabiilty-report/
 
+# Contains the real client name and discovery-call notes — this repo is public;
+# never let it enter version control (see the Data brief's own confidentiality note).
+/question_bank.xlsx
+
 # Generated output (regenerate any time with scripts/generate.py)
 datagen/output/
 
