@@ -1,0 +1,62 @@
+# RCL PoC synthetic data generator config.
+#
+# Edit this file and rerun `python scripts/generate.py --scale <dev|poc|stress>`
+# to regenerate data — no need to touch the generator code for volume/date/
+# probability changes. See README.md for what each section controls.
+
+seed: 42
+
+dates:
+  history_start: "2023-01-01"      # start of historical (cuts) data
+  history_end: "2025-12-31"        # end of historical data
+  as_of_date: null                 # null = use today's date when the script runs
+  open_order_horizon_days: 60      # live open orders: as_of_date .. as_of_date + N
+  open_order_lookback_days: 21     # ... and back to as_of_date - N (recently created lines)
+  allocation_lookback_days: 90     # how many days of allocation snapshots to generate
+  vulnerability_weeks: 104         # how many weekly vulnerability snapshots to generate
+
+fiscal_calendar:
+  # ASSUMPTION: fiscal week/month are simplified to the ISO calendar (Monday-start
+  # weeks, fiscal period = calendar month). Replace with the client's real 4-4-5
+  # retail calendar in src/rcl_datagen/calendar.py once confirmed — that is the
+  # only place this logic lives.
+  week_starts_on: "Monday"
+
+dimensions:
+  # Product/customer/location catalog size — independent of the fact-table row
+  # volumes below, since the same catalog is reused across scales.
+  num_gbus: 2
+  num_franchises_per_gbu: 3
+  num_categories_per_franchise: 3
+  num_brands_per_category: 2
+  num_materials_per_brand: 5
+  num_plants: 8                    # manufacturing + distribution sites
+  num_distribution_centers: 6      # subset of plants that hold sellable inventory (<= num_plants)
+  num_customers: 45
+  num_ship_to_per_customer_max: 3
+
+volumes:
+  # Row-count targets per named scale. Pick with --scale on the CLI (default: dev).
+  dev:
+    open_order_lines: 2000
+    historical_rows: 20000
+  poc:
+    open_order_lines: 20000
+    historical_rows: 300000
+  stress:
+    open_order_lines: 100000
+    historical_rows: 2000000
+
+business_rules:
+  cut_probability: 0.18            # chance an open-order line is only partially confirmed
+  npi_rate: 0.04                   # % of materials flagged as NPI (new product introduction)
+  future_dated_po_rate: 0.10
+  historical_open_rate: 0.15       # historical rows with no actual ship date yet (still open/cancelled)
+  allocation_rate_base: 0.08       # baseline % of SKUs on allocation on a given day/period
+  risk_high_tier_target_rate: 0.12 # rough target share of material-weeks landing in High/Critical vulnerability
+
+output:
+  duckdb_path: "output/rcl_poc.duckdb"
+  parquet_dir: "output/parquet"
+  csv_dir: "output/csv"
+  write_csv: true

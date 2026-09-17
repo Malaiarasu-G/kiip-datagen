@@ -1,0 +1,18 @@
+# Real client data snapshots (screenshots of production tables) — never commit these.
+/open order data/
+/historical data/
+/allocation osas/
+/vulnerabiilty-report/
+
+# Generated output (regenerate any time with scripts/generate.py)
+datagen/output/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
