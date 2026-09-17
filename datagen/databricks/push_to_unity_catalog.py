@@ -15,8 +15,8 @@
 # MAGIC    `Single user` (or use Serverless, if available on your workspace).
 # MAGIC    Unity Catalog writes fail on an old-style "No isolation shared" cluster.
 # MAGIC 3. You need `CREATE SCHEMA` + `CREATE TABLE` permission on the target catalog.
-# MAGIC    If you're not sure, leave `catalog` as `main` -- most workspaces grant
-# MAGIC    everyone create-schema rights there by default.
+# MAGIC    Defaults to `integrated_intelligence_poc` (this workspace's PoC catalog) --
+# MAGIC    change the `catalog` widget if you want a different one.
 # MAGIC 4. Click **Run all** (or step through cell by cell).
 # MAGIC
 # MAGIC Nothing here touches the real client's data or systems -- this only
@@ -29,7 +29,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("catalog", "main", "1. Catalog name")
+dbutils.widgets.text("catalog", "integrated_intelligence_poc", "1. Catalog name")
 dbutils.widgets.text("schema", "rcl_poc", "2. Schema name (created if missing)")
 dbutils.widgets.dropdown("scale", "poc", ["dev", "poc", "stress"], "3. Data volume preset")
 dbutils.widgets.dropdown("apply_comments", "true", ["true", "false"], "4. Add table/column descriptions?")
